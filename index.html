@@ -158,6 +158,16 @@ button { cursor: pointer; }
 .mail.u .f { color: var(--cyan); }
 .mail .s { overflow-wrap: anywhere; font-weight: 600; font-size: 15px; }
 .empty { color: var(--ink-2); font-size: 14px; padding: 6px 0; }
+#tasks { max-height: 46vh; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
+.donebar { margin-top: 12px; border-top: 1px solid var(--edge-dim); padding-top: 6px; }
+.donetoggle { width: 100%; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 6px 0; font: 500 11px var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
+.donetoggle:hover { color: var(--cyan); }
+.donetoggle .chev { display: inline-block; transition: transform .2s; }
+.donetoggle[aria-expanded="true"] .chev { transform: rotate(90deg); }
+#doneList { max-height: 36vh; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
+.task.done .tt > div:first-child { text-decoration: line-through; text-decoration-color: rgba(143, 169, 200, .6); color: var(--ink-2); font-weight: 500; }
+.tick.on { display: block; border-color: var(--ok); cursor: default; }
+.tick.on::after { content: "\2713"; display: block; text-align: center; line-height: 19px; font-size: 13px; color: var(--ok); }
 .foot { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; font: 400 10px var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
 .foot button { background: none; border: 0; color: var(--ink-2); text-decoration: underline; font: inherit; letter-spacing: inherit; text-transform: inherit; padding: 4px; }
 
@@ -236,6 +246,7 @@ button { cursor: pointer; }
       <div class="ph"><h2>Missions</h2><span class="code" id="taskCode">SYS/03</span></div>
       <div id="tasks"><div class="empty">Link this device to load your list.</div></div>
       <form class="addrow" id="addForm"><input id="addIn" dir="auto" type="text" placeholder="Add a mission" autocomplete="off" aria-label="Add a task"><button class="btn" type="submit">Add</button></form>
+      <div class="donebar"><button class="donetoggle" id="doneToggle" type="button" aria-expanded="false" aria-controls="doneList"><span class="chev" aria-hidden="true">&#9656;</span><span id="doneLabel">Done</span></button><div id="doneList" hidden></div></div>
     </div></section>
     <section class="hud"><div class="in">
       <div class="ph"><h2>Status</h2><span class="code">LIVE</span></div>
@@ -429,7 +440,7 @@ button { cursor: pointer; }
     }, function () { $('#tlCode').textContent = 'OFFLINE'; });
   }
   function hm(ms) { var d = new Date(ms); return p2(d.getHours()) + ':' + p2(d.getMinutes()); }
-  function renderAll() { renderTimeline(); renderInbox(); renderTasks(); renderStats(); }
+  function renderAll() { renderTimeline(); renderInbox(); renderTasks(); renderDone(); renderStats(); }
   function dayName(day) {
     if (day === dash.today) return 'Today'; if (day === dash.tomorrow) return 'Tomorrow';
     var d = new Date(day + 'T12:00:00'); return d.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' });
@@ -467,11 +478,13 @@ button { cursor: pointer; }
     var host = $('#tasks'); host.replaceChildren();
     $('#taskCode').textContent = dash.openCount + ' OPEN';
     if (!(dash.tasks || []).length) { host.appendChild(el('div', 'empty', 'No open missions. Well done.')); return; }
-    dash.tasks.slice(0, 8).forEach(function (t) {
+    dash.tasks.slice(0, 60).forEach(function (t) {
       var row = el('div', 'task');
       var b = el('button', 'tick'); b.type = 'button'; b.setAttribute('aria-label', 'Mark done: ' + t.title);
       b.onclick = function () {
-        row.remove(); api('task_done', { id: t.id }).then(function () { scheduleRefresh(400); }, function () { notice('Could not save that.', true); scheduleRefresh(400); });
+        row.remove();
+        if (dash) { dash.done = [{ id: t.id, title: t.title, area: t.area, doneMs: Date.now() + skew }].concat(dash.done || []); renderDone(); }
+        api('task_done', { id: t.id }).then(function () { scheduleRefresh(400); }, function () { notice('Could not save that.', true); scheduleRefresh(400); });
       };
       var body = el('div', 'tt'); var tt = el('div', null, t.title); tt.dir = 'auto'; body.appendChild(tt);
       var meta = el('div', 'meta');
@@ -483,6 +496,30 @@ button { cursor: pointer; }
       row.append(b, body); host.appendChild(row);
     });
   }
+  function doneWhen(ms) {
+    if (!ms) return 'DONE';
+    var d = new Date(ms), n = new Date(Date.now() + skew), y = new Date(n.getTime() - 864e5);
+    if (d.toDateString() === n.toDateString()) return 'DONE TODAY ' + hm(ms);
+    if (d.toDateString() === y.toDateString()) return 'DONE YESTERDAY';
+    return 'DONE ' + d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }).toUpperCase();
+  }
+  function renderDone() {
+    var list = (dash && dash.done) || [], host = $('#doneList');
+    $('#doneLabel').textContent = 'Done (' + list.length + ')';
+    host.replaceChildren();
+    if (!list.length) { host.appendChild(el('div', 'empty', 'Nothing ticked off yet.')); return; }
+    list.forEach(function (t) {
+      var row = el('div', 'task done'), ck = el('span', 'tick on'); ck.setAttribute('aria-hidden', 'true');
+      var body = el('div', 'tt'), tt = el('div', null, t.title); tt.dir = 'auto'; body.appendChild(tt);
+      var meta = el('div', 'meta'); meta.appendChild(el('span', 'tag', doneWhen(t.doneMs)));
+      if (t.area) meta.appendChild(el('span', 'tag', t.area.toUpperCase()));
+      body.appendChild(meta); row.append(ck, body); host.appendChild(row);
+    });
+  }
+  var doneOpen = store.get('jv_done') === '1';
+  function setDoneOpen(v) { doneOpen = v; $('#doneList').hidden = !v; $('#doneToggle').setAttribute('aria-expanded', v ? 'true' : 'false'); store.set('jv_done', v ? '1' : '0'); }
+  $('#doneToggle').onclick = function () { setDoneOpen(!doneOpen); };
+  setDoneOpen(doneOpen);
   function ring(value, max, color) {
     var r = 26, c = 2 * Math.PI * r, f = Math.max(0, Math.min(1, max ? value / max : 0));
     return '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="' + r + '" fill="none" stroke="rgba(77,216,255,.18)" stroke-width="4"/><circle cx="32" cy="32" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="4" stroke-linecap="round" stroke-dasharray="' + (c * f).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 32 32)"/></svg>';
