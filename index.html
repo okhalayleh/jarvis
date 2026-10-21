@@ -10,9 +10,12 @@
 <meta name="apple-mobile-web-app-title" content="Jarvis">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Jarvis</title>
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icon-192.png">
-<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="manifest" id="mf" href="manifest.webmanifest">
+<link rel="icon" id="ic" href="icon-192.png">
+<link rel="apple-touch-icon" id="ati" href="icon-180.png">
+<script>
+(function () { if (/[?&]view=glance/.test(location.search)) { document.documentElement.classList.add("glance"); document.getElementById("mf").href = "manifest-glance.webmanifest"; document.getElementById("ic").href = "icon-glance-192.png"; document.getElementById("ati").href = "icon-glance-180.png"; document.title = "Glance"; } })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Arabic:wght@400;600&display=swap">
@@ -145,20 +148,6 @@ button { cursor: pointer; }
 .tag { font: 400 10px var(--f-mono); letter-spacing: .08em; padding: 2px 6px; background: rgba(77, 216, 255, .12); color: var(--cyan); }
 .tag.gold { background: rgba(240, 190, 85, .15); color: var(--gold); }
 .tag.bad { background: rgba(255, 107, 91, .16); color: var(--red); }
-.addrow { display: flex; gap: 6px; margin-top: 10px; }
-.addrow input { flex: 1; min-width: 0; background: rgba(3, 10, 24, .8); border: 1px solid var(--edge-dim); padding: 8px 10px; font-size: 15px; }
-.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.stat { text-align: center; }
-.stat svg { width: 100%; max-width: 86px; height: auto; display: block; margin: 0 auto; }
-.stat b { display: block; font: 700 22px var(--f-ui); margin-top: -58px; height: 58px; line-height: 58px; font-variant-numeric: tabular-nums; }
-.stat span { font: 400 10px var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
-.mail { padding: 7px 0; border-top: 1px solid var(--edge-dim); }
-.mail:first-child { border-top: 0; }
-.mail .f { font-size: 12px; color: var(--ink-2); }
-.mail.u .f { color: var(--cyan); }
-.mail .s { overflow-wrap: anywhere; font-weight: 600; font-size: 15px; }
-.empty { color: var(--ink-2); font-size: 14px; padding: 6px 0; }
-#tasks { max-height: 46vh; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
 .donebar { margin-top: 12px; border-top: 1px solid var(--edge-dim); padding-top: 6px; }
 .donetoggle { width: 100%; display: flex; align-items: center; gap: 8px; background: none; border: 0; padding: 6px 0; font: 500 11px var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
 .donetoggle:hover { color: var(--cyan); }
@@ -167,24 +156,92 @@ button { cursor: pointer; }
 #doneList { max-height: 36vh; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
 .task.done .tt > div:first-child { text-decoration: line-through; text-decoration-color: rgba(143, 169, 200, .6); color: var(--ink-2); font-weight: 500; }
 .tick.on { border-color: var(--ok); }
-.rp-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-.rp-btns .btn { flex: 1 1 140px; }
-.btn[disabled] { opacity: .5; cursor: wait; }
-.rp-out { margin-top: 10px; font-size: 14px; }
-.rp-out .rp-msg { color: var(--ink-2); }
-.rp-out .rp-msg.bad { color: var(--red); }
-.rp-out .rp-msg.ok { color: var(--ok); }
-.rp-out ul { margin: 8px 0 0; padding-left: 18px; }
-.rp-out li { margin: 4px 0; }
-.rp-out .rp-flags li { color: var(--gold); }
-.rp-out .rp-links { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
-.rp-out a { color: var(--cyan); font: 500 12px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; }
-.rp-meta { font: 400 10px var(--f-mono); letter-spacing: .12em; color: var(--ink-2); margin-top: 8px; text-transform: uppercase; }
 .tick.on:hover { background: rgba(255, 107, 91, .18); border-color: var(--red); }
 .tick.on:hover::after { content: "\21BA"; color: var(--red); }
 .tick.on::after { content: "\2713"; display: block; text-align: center; line-height: 19px; font-size: 13px; color: var(--ok); }
+#tasks { padding-right: 2px; overscroll-behavior: contain; }
+@media (min-width: 900px) { #tasks { max-height: 46vh; overflow-y: auto; padding-right: 6px; } }
+.addrow { display: flex; gap: 6px; margin-top: 10px; }
+.addrow input { flex: 1; min-width: 0; background: rgba(3, 10, 24, .8); border: 1px solid var(--edge-dim); padding: 8px 10px; font-size: 15px; }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.stat { text-align: center; }
+.stat svg { width: 100%; max-width: 86px; height: auto; display: block; margin: 0 auto; }
+.stat b { display: block; font: 700 22px var(--f-ui); margin-top: -58px; height: 58px; line-height: 58px; font-variant-numeric: tabular-nums; }
+.stat span { font: 400 9.5px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.mail { padding: 7px 0; border-top: 1px solid var(--edge-dim); }
+.mail:first-child { border-top: 0; }
+.mail .f { font-size: 12px; color: var(--ink-2); }
+.mail.u .f { color: var(--cyan); }
+.mail .s { overflow-wrap: anywhere; font-weight: 600; font-size: 15px; }
+.empty { color: var(--ink-2); font-size: 14px; padding: 6px 0; }
+.rep-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.rep-actions .btn { flex: 1 1 auto; }
+.rep-actions .btn[disabled] { opacity: .55; cursor: progress; }
+.rep-sub { margin: 8px 0 0; font-size: 13px; color: var(--ink-2); }
+.rep-out { margin-top: 10px; font-size: 14px; }
+.rep-out:empty { display: none; }
+.rep-out .rl { margin: 0 0 4px; overflow-wrap: anywhere; }
+.rep-out .rl.f { color: var(--gold); font-size: 13px; }
+.rep-out .rl.bad { color: var(--red); }
+.rep-out .ok { font: 500 11px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); margin-bottom: 6px; }
+.rep-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.rep-links a, .rep-links button { font: 600 12px var(--f-ui); letter-spacing: .1em; text-transform: uppercase; color: var(--cyan); border: 1px solid var(--edge); background: rgba(77, 216, 255, .08); padding: 7px 10px; text-decoration: none; }
+.rep-links a:hover, .rep-links button:hover { background: rgba(77, 216, 255, .22); }
 .foot { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; align-items: center; font: 400 10px var(--f-mono); letter-spacing: .16em; text-transform: uppercase; color: var(--ink-2); }
 .foot button { background: none; border: 0; color: var(--ink-2); text-decoration: underline; font: inherit; letter-spacing: inherit; text-transform: inherit; padding: 4px; }
+
+/* glance view: ?view=glance. A compact single-column version for a second home-screen icon */
+html.glance .app { max-width: 520px; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+html.glance .col { display: contents; }
+html.glance .bar { order: -2; }
+html.glance .stage { order: -1; min-height: 0; padding-top: 0; gap: 8px; }
+html.glance .orbwrap { width: min(62vw, 30svh, 260px); }
+html.glance .caps { min-height: 56px; }
+html.glance .caps .ai { font-size: 17px; }
+html.glance .hint, html.glance .wordmark small, html.glance #repPrev, html.glance .rep-sub, html.glance .scan-sub, html.glance #kbBtn { display: none; }
+html.glance #colL > .hud:nth-child(1) { order: 1; }
+html.glance #colL > .hud:nth-child(2) { display: none; }
+html.glance #colR > .hud:nth-child(3) { order: 2; }
+html.glance #colR > .hud:nth-child(1) { order: 3; }
+html.glance #colR > .hud:nth-child(2) { order: 4; }
+html.glance #colR > .hud:nth-child(4) { display: none; }
+html.glance #colR > .hud:nth-child(1) .rep-actions, html.glance #colR > .hud:nth-child(2) .rep-actions { flex-wrap: nowrap; }
+html.glance .foot { order: 9; }
+html.glance #tasks { max-height: none; overflow: visible; }
+html.glance .donebar { display: none; }
+.outbox { width: min(100%, 560px); }
+.outbox[hidden] { display: none; }
+.ob-item { display: grid; gap: 8px; margin-top: 10px; }
+.ob-item:first-of-type { margin-top: 0; }
+.ob-to { font: 500 11px var(--f-mono); letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); }
+.ob-text { width: 100%; min-height: 76px; resize: vertical; background: rgba(3, 10, 24, .8); border: 1px solid var(--edge-dim); padding: 8px 10px; font: 15px/1.4 var(--f-ui); color: var(--ink); }
+.ob-act { display: flex; gap: 8px; flex-wrap: wrap; }
+.ob-act .btn { flex: 1 1 auto; text-align: center; text-decoration: none; display: inline-block; }
+.ob-note { font-size: 12px; color: var(--ink-2); margin: 0; }
+
+
+/* notes scanner */
+.scan-sub { margin: 8px 0 0; font-size: 13px; color: var(--ink-2); }
+.sc-modal { align-items: start; overflow-y: auto; }
+.sc-modal .hud { width: min(100%, 640px); margin: 8px auto; }
+.sc-head { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.sc-rows { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; max-height: 58vh; overflow-y: auto; padding-right: 2px; }
+.sc-row { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 4px 10px; padding: 8px; border: 1px solid var(--edge-dim); background: rgba(3, 10, 24, .55); }
+.sc-row.off { opacity: .5; }
+.sc-row.chk { border-color: var(--gold); }
+.sc-row input[type=checkbox] { width: 20px; height: 20px; margin-top: 8px; accent-color: var(--cyan); }
+.sc-row .sc-t { width: 100%; background: rgba(3, 10, 24, .85); border: 1px solid var(--edge-dim); padding: 7px 9px; font-size: 15px; min-width: 0; }
+.sc-meta { grid-column: 2; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.sc-meta select, .sc-meta input[type=date] { background: rgba(3, 10, 24, .85); border: 1px solid var(--edge-dim); color: var(--ink); font: 400 12px var(--f-mono); padding: 5px 6px; min-width: 0; }
+.sc-meta select { max-width: 132px; }
+.sc-meta input[type=date] { width: 136px; flex: none; }
+.sc-star { background: none; border: 1px solid var(--edge-dim); color: var(--ink-2); font-size: 15px; padding: 2px 8px; line-height: 1.3; }
+.sc-star[aria-pressed="true"] { color: var(--gold); border-color: var(--gold); background: rgba(240, 190, 85, .12); }
+.sc-note { grid-column: 2; font-size: 12px; color: var(--ink-2); overflow-wrap: anywhere; }
+.sc-foot { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+.sc-foot .grow { flex: 1; }
+.sc-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.sc-bar button { background: none; border: 0; color: var(--cyan); text-decoration: underline; font: 500 12px var(--f-mono); letter-spacing: .08em; padding: 2px 0; }
 
 /* setup dialog */
 .modal { position: fixed; inset: 0; z-index: 30; background: rgba(1, 4, 11, .86); display: grid; place-items: center; padding: 16px; }
@@ -234,14 +291,6 @@ button { cursor: pointer; }
       <div class="ph"><h2>Inbox</h2><span class="code" id="inboxCode">SYS/02</span></div>
       <div id="inbox"><div class="empty">Nothing loaded yet.</div></div>
     </div></section>
-    <section class="hud"><div class="in">
-      <div class="ph"><h2>Reports</h2><span class="code" id="rpCode">WEEKLY</span></div>
-      <div class="rp-btns">
-        <button class="btn" id="rpPreview" type="button">Preview numbers</button>
-        <button class="btn gold" id="rpRun" type="button">Weekly pipeline report</button>
-      </div>
-      <div class="rp-out" id="rpOut" aria-live="polite"><div class="empty">Preview reads the newest export and creates nothing. The report saves a draft to Todd. It never sends.</div></div>
-    </div></section>
   </aside>
 
   <section class="stage" aria-label="Voice">
@@ -261,10 +310,29 @@ button { cursor: pointer; }
     </div>
     <form class="typeform" id="typeForm" hidden><input id="typeIn" dir="auto" type="text" placeholder="Type to Jarvis…" autocomplete="off" aria-label="Type a message"><button class="btn" type="submit">Send</button></form>
     <p class="notice" id="notice" role="status"></p>
+    <section class="hud outbox" id="outSec" hidden><div class="in">
+      <div class="ph"><h2>Messages ready</h2><span class="code">WHATSAPP</span></div>
+      <div id="outList"></div>
+    </div></section>
     <p class="hint" id="hint">SPACE to talk · ESC to end</p>
   </section>
 
   <aside class="col" id="colR">
+    <section class="hud"><div class="in">
+      <div class="ph"><h2>Capture</h2><span class="code" id="scanCode">PHOTO</span></div>
+      <div class="rep-actions"><button class="btn gold" id="scanBtn" type="button">Scan handwritten notes</button></div>
+      <input id="scanFile" type="file" accept="image/*" hidden>
+      <p class="scan-sub">Take a photo of your planner page. You review the list, then only the items you tick are added.</p>
+    </div></section>
+    <section class="hud"><div class="in">
+      <div class="ph"><h2>Reports</h2><span class="code" id="repCode">READY</span></div>
+      <div class="rep-actions">
+        <button class="btn gold" id="repBtn" type="button">Weekly pipeline report</button>
+        <button class="btn" id="repPrev" type="button">Preview numbers</button>
+      </div>
+      <p class="rep-sub">Reads the newest export in your Drive folder, builds the report and saves a draft to Todd. Never sends.</p>
+      <div class="rep-out" id="repOut" aria-live="polite"></div>
+    </div></section>
     <section class="hud"><div class="in">
       <div class="ph"><h2>Missions</h2><span class="code" id="taskCode">SYS/03</span></div>
       <div id="tasks"><div class="empty">Link this device to load your list.</div></div>
@@ -279,6 +347,16 @@ button { cursor: pointer; }
 
   <footer class="foot"><span>Private link · for Omar only</span><span><button id="installBtn" type="button" hidden>Install app</button> <button id="setupBtn" type="button">Settings</button></span></footer>
 </main>
+
+<div class="modal sc-modal" id="scModal" hidden role="dialog" aria-modal="true" aria-labelledby="scT">
+  <div class="hud"><div class="in">
+    <div class="sc-head"><div class="ph" style="margin:0"><h2 id="scT">Review your notes</h2></div><span class="code" id="scCount"></span></div>
+    <p id="scMsg" class="scan-sub"></p>
+    <div class="sc-bar"><button type="button" id="scAll">Tick all</button><button type="button" id="scNone">Untick all</button></div>
+    <div class="sc-rows" id="scRows"></div>
+    <div class="sc-foot"><button class="btn gold" id="scAdd" type="button">Add to missions</button><button class="btn" id="scCancel" type="button">Cancel</button><span class="grow"></span></div>
+  </div></div>
+</div>
 
 <div class="modal" id="setup" hidden role="dialog" aria-modal="true" aria-labelledby="setupT">
   <div class="hud"><div class="in">
@@ -305,6 +383,7 @@ button { cursor: pointer; }
     set: function (k, v) { try { localStorage.setItem(k, v); } catch (e) {} },
     del: function (k) { try { localStorage.removeItem(k); } catch (e) {} }
   };
+  var GLANCE = document.documentElement.classList.contains('glance');
   var cfg = { url: store.get('jv_url'), token: store.get('jv_tok'), agent: store.get('jv_agent') };
   var S = { mode: 'off', think: false, muted: false, inLvl: 0, outLvl: 0, lvl: 0, inF: null, outF: null };
   var conv = null, sdk = null, pollTimer = null, wake = null, dash = null, skew = 0, refreshT = null, typeT = null;
@@ -448,7 +527,7 @@ button { cursor: pointer; }
   });
   document.addEventListener('keydown', function (ev) {
     var tag = (document.activeElement && document.activeElement.tagName) || '';
-    if (/INPUT|TEXTAREA/.test(tag) || !$('#setup').hidden) return;
+    if (/INPUT|TEXTAREA|SELECT/.test(tag) || !$('#setup').hidden || !$('#scModal').hidden) return;
     if (ev.code === 'Space') { ev.preventDefault(); $('#talkBtn').click(); }
     else if (ev.key === 'Escape') stop();
   });
@@ -459,8 +538,45 @@ button { cursor: pointer; }
     if (!linked()) return Promise.resolve();
     return api('dashboard').then(function (d) {
       if (!d || !d.ok) { $('#tlCode').textContent = 'OFFLINE'; return; }
-      dash = d; skew = d.nowMs - Date.now(); renderAll(); tickClock();
+      dash = d; skew = d.nowMs - Date.now(); renderAll(); tickClock(); loadOutbox();
     }, function () { $('#tlCode').textContent = 'OFFLINE'; });
+  }
+
+  /* ---------- WhatsApp messages Jarvis has prepared (tap to send, never automatic) ---------- */
+  var outSig = '';
+  function waLink(phone, text) { return 'https://wa.me/' + (phone ? String(phone).replace(/\D/g, '') : '') + '?text=' + encodeURIComponent(text); }
+  function renderOutbox(items) {
+    var sec = $('#outSec'), host = $('#outList');
+    items = items || [];
+    var sig = items.map(function (i) { return i.id; }).join(',');
+    if (sig === outSig && host.children.length) return;       // same messages: keep what Omar is editing
+    outSig = sig; host.replaceChildren();
+    sec.hidden = !items.length;
+    items.forEach(function (it) {
+      var box = el('div', 'ob-item');
+      box.appendChild(el('div', 'ob-to', 'To ' + it.name));
+      var ta = el('textarea', 'ob-text'); ta.value = it.text; ta.setAttribute('dir', 'auto'); ta.setAttribute('aria-label', 'Message to ' + it.name);
+      var act = el('div', 'ob-act');
+      var go = el('a', 'btn gold', 'Open in WhatsApp'); go.href = waLink(it.phone, it.text); go.target = '_blank'; go.rel = 'noopener';
+      ta.addEventListener('input', function () { go.href = waLink(it.phone, ta.value); });
+      go.addEventListener('click', function () {
+        api('outbox_done', { id: it.id, status: 'opened' }).catch(function () {});
+        setTimeout(function () { box.remove(); if (!host.children.length) sec.hidden = true; }, 600);
+      });
+      var no = el('button', 'btn', 'Dismiss'); no.type = 'button';
+      no.addEventListener('click', function () {
+        api('outbox_done', { id: it.id, status: 'dismissed' }).catch(function () {});
+        box.remove(); if (!host.children.length) sec.hidden = true;
+      });
+      act.appendChild(go); act.appendChild(no);
+      box.appendChild(ta); box.appendChild(act);
+      if (!it.phone) box.appendChild(el('p', 'ob-note', 'No number saved, so WhatsApp will ask you to pick the chat.'));
+      host.appendChild(box);
+    });
+  }
+  function loadOutbox() {
+    if (!linked()) return;
+    api('outbox').then(function (r) { renderOutbox(r && r.ok ? r.items : []); }, function () {});
   }
   function hm(ms) { var d = new Date(ms); return p2(d.getHours()) + ':' + p2(d.getMinutes()); }
   function renderAll() { renderTimeline(); renderInbox(); renderTasks(); renderDone(); renderStats(); }
@@ -472,6 +588,7 @@ button { cursor: pointer; }
     var host = $('#timeline'); host.replaceChildren();
     var now = Date.now() + skew;
     var evs = dash.events || [];
+    if (GLANCE) evs = evs.filter(function (e) { return e.allDay || e.endMs >= now; }).slice(0, 3);
     $('#tlCode').textContent = evs.length + ' EVENTS';
     if (!evs.length) { host.appendChild(el('div', 'empty', 'Nothing scheduled for the next three days.')); return; }
     var next = evs.filter(function (e) { return !e.allDay && e.startMs > now; })[0];
@@ -501,12 +618,13 @@ button { cursor: pointer; }
     var host = $('#tasks'); host.replaceChildren();
     $('#taskCode').textContent = dash.openCount + ' OPEN';
     if (!(dash.tasks || []).length) { host.appendChild(el('div', 'empty', 'No open missions. Well done.')); return; }
-    dash.tasks.slice(0, 60).forEach(function (t) {
+    var shown = GLANCE ? dash.tasks.slice(0, 5) : dash.tasks;
+    shown.forEach(function (t) {
       var row = el('div', 'task');
       var b = el('button', 'tick'); b.type = 'button'; b.setAttribute('aria-label', 'Mark done: ' + t.title);
       b.onclick = function () {
         row.remove();
-        if (dash) { dash.done = [{ id: t.id, title: t.title, area: t.area, doneMs: Date.now() + skew }].concat(dash.done || []); renderDone(); }
+        if (dash) { dash.tasks = (dash.tasks || []).filter(function (x) { return x.id !== t.id; }); dash.openCount = Math.max(0, (dash.openCount || 1) - 1); if (t.overdue) dash.overdueCount = Math.max(0, (dash.overdueCount || 1) - 1); dash.done = [{ id: t.id, title: t.title, area: t.area, overdue: !!t.overdue, doneMs: Date.now() + skew }].concat(dash.done || []); $('#taskCode').textContent = dash.openCount + ' OPEN'; renderDone(); renderStats(); }
         api('task_done', { id: t.id }).then(function () { scheduleRefresh(400); }, function () { notice('Could not save that.', true); scheduleRefresh(400); });
       };
       var body = el('div', 'tt'); var tt = el('div', null, t.title); tt.dir = 'auto'; body.appendChild(tt);
@@ -518,6 +636,7 @@ button { cursor: pointer; }
       if (meta.childNodes.length) body.appendChild(meta);
       row.append(b, body); host.appendChild(row);
     });
+    if (shown.length < dash.openCount) host.appendChild(el('div', 'empty', 'Showing ' + shown.length + ' of ' + dash.openCount + ' open. ' + (GLANCE ? 'Open the full Jarvis for the rest.' : 'Ask Jarvis for the rest.')));
   }
   function doneWhen(ms) {
     if (!ms) return 'DONE';
@@ -545,8 +664,8 @@ button { cursor: pointer; }
     row.remove();
     if (dash) {
       dash.done = (dash.done || []).filter(function (d) { return d !== t; });
-      dash.tasks = [{ id: t.id, title: t.title, due: '', pri: false, area: t.area, overdue: false }].concat(dash.tasks || []);
-      dash.openCount = (dash.openCount || 0) + 1; renderTasks(); renderDone(); renderStats();
+      dash.tasks = [{ id: t.id, title: t.title, due: '', pri: false, area: t.area, overdue: !!t.overdue }].concat(dash.tasks || []);
+      dash.openCount = (dash.openCount || 0) + 1; if (t.overdue) dash.overdueCount = (dash.overdueCount || 0) + 1; renderTasks(); renderDone(); renderStats();
     }
     notice('Back on the list: ' + t.title);
     api('task_reopen', { id: t.id, title: t.title }).then(function (r) {
@@ -563,8 +682,17 @@ button { cursor: pointer; }
     return '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="' + r + '" fill="none" stroke="rgba(77,216,255,.18)" stroke-width="4"/><circle cx="32" cy="32" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="4" stroke-linecap="round" stroke-dasharray="' + (c * f).toFixed(1) + ' ' + c.toFixed(1) + '" transform="rotate(-90 32 32)"/></svg>';
   }
   function renderStats() {
-    var host = $('#stats'); var today = (dash.events || []).filter(function (e) { return e.day === dash.today && !e.allDay; }).length;
-    var items = [[dash.openCount, 'Open', ring(dash.openCount, Math.max(10, dash.openCount), '#4DD8FF')], [dash.overdueCount, 'Overdue', ring(dash.overdueCount, Math.max(1, dash.openCount), '#FF6B5B')], [today, 'Today', ring(today, Math.max(6, today), '#F0BE55')]];
+    var host = $('#stats');
+    var now = Date.now() + skew, d0 = new Date(now); d0.setHours(0, 0, 0, 0);
+    var doneToday = (dash.done || []).filter(function (t) { return t.doneMs && t.doneMs >= d0.getTime(); }).length;
+    var meetings = (dash.events || []).filter(function (e) { return e.day === dash.today && !e.allDay; }).length;
+    var left = dash.openCount || 0, over = dash.overdueCount || 0;
+    var items = [
+      [doneToday, 'Done today', ring(doneToday, Math.max(1, doneToday + left), '#4DD8FF')],
+      [left, 'Left', ring(left, Math.max(10, left), '#F0BE55')],
+      [over, 'Overdue', ring(over, Math.max(1, left), '#FF6B5B')],
+      [meetings, 'Meetings', ring(meetings, Math.max(6, meetings), '#7FE0A6')]
+    ];
     host.replaceChildren();
     items.forEach(function (it) { var d = el('div', 'stat'); d.innerHTML = it[2] + '<b>' + Number(it[0]) + '</b><span>' + it[1] + '</span>'; host.appendChild(d); });
   }
@@ -576,48 +704,130 @@ button { cursor: pointer; }
   });
 
   /* ---------- weekly report ---------- */
-  function rpRender(r, mode) {
-    var host = $('#rpOut'); host.replaceChildren();
-    var msg = el('div', 'rp-msg');
-    if (!r || r.ok === false && !r.exists) { msg.className = 'rp-msg bad'; msg.textContent = (r && r.message) || 'Something went wrong.'; host.appendChild(msg); return; }
-    if (r.exists) { msg.textContent = r.message; host.appendChild(msg); }
-    else if (mode === 'dry') { msg.textContent = 'Preview only. Nothing was created.'; host.appendChild(msg); }
-    else { msg.className = 'rp-msg ok'; msg.textContent = 'Draft saved to ' + (r.to ? 'Todd' : 'your drafts') + '. Not sent. Review it in Gmail.'; host.appendChild(msg); }
-    if (r.headlines && r.headlines.length) {
-      var ul = el('ul'); r.headlines.filter(function (h) { return !/^Top flag:/.test(h); }).forEach(function (h) { ul.appendChild(el('li', null, h)); }); host.appendChild(ul);
-    }
-    if (r.flags && r.flags.length) {
-      var fl = el('ul', 'rp-flags'); r.flags.slice(0, 4).forEach(function (f) { fl.appendChild(el('li', null, f)); }); host.appendChild(fl);
-    }
-    if (r.doc_url || r.pdf_url) {
-      var lk = el('div', 'rp-links');
-      if (r.doc_url) { var a = el('a', null, 'Open report'); a.href = r.doc_url; a.target = '_blank'; a.rel = 'noopener'; lk.appendChild(a); }
-      if (r.pdf_url) { var b = el('a', null, 'Open PDF'); b.href = r.pdf_url; b.target = '_blank'; b.rel = 'noopener'; lk.appendChild(b); }
-      lk.appendChild((function () { var g = el('a', null, 'Gmail drafts'); g.href = 'https://mail.google.com/mail/u/0/#drafts'; g.target = '_blank'; g.rel = 'noopener'; return g; })());
-      host.appendChild(lk);
-    }
-    if (r.file) host.appendChild(el('div', 'rp-meta', 'Source: ' + r.file + (r.data_date ? ' · ' + r.data_date : '')));
-  }
-  function rpCall(params, mode) {
+  var repBusy = false;
+  function repLine(cls, text) { var p = el('p', 'rl' + (cls ? ' ' + cls : ''), text); p.dir = 'auto'; return p; }
+  function runReport(opts) {
     if (!linked()) { openSetup(); return; }
-    var btns = [$('#rpPreview'), $('#rpRun')]; btns.forEach(function (b) { b.disabled = true; });
-    $('#rpCode').textContent = 'WORKING';
-    var host = $('#rpOut'); host.replaceChildren(el('div', 'empty', mode === 'dry' ? 'Reading the newest export…' : 'Building the report. This can take up to a minute…'));
+    if (repBusy) return;
+    repBusy = true;
+    var out = $('#repOut'); out.replaceChildren();
+    var b1 = $('#repBtn'), b2 = $('#repPrev');
+    b1.disabled = b2.disabled = true;
+    $('#repCode').textContent = 'WORKING';
+    out.appendChild(repLine('', opts.dry ? 'Reading the export…' : 'Building the report and the draft. This can take up to a minute…'));
+    var params = {}; if (opts.dry) params.dry = '1'; if (opts.again) params.again = '1';
     api('weekly_report', params).then(function (r) {
-      if (r && r.exists && mode !== 'again') {
-        rpRender(r, mode);
-        if (window.confirm('A draft with this week\'s report already exists in your Gmail drafts. Make another one?')) { btns.forEach(function (b) { b.disabled = false; }); rpCall({ again: '1' }, 'again'); return; }
-      } else rpRender(r, mode);
-      $('#rpCode').textContent = 'WEEKLY'; btns.forEach(function (b) { b.disabled = false; });
-    }, function () {
-      rpRender({ ok: false, message: 'Could not reach the script. It may still be working. Check your Gmail drafts in a minute before trying again.' });
-      $('#rpCode').textContent = 'WEEKLY'; btns.forEach(function (b) { b.disabled = false; });
+      out.replaceChildren();
+      if (!r || !r.ok) {
+        $('#repCode').textContent = 'PROBLEM';
+        out.appendChild(repLine('bad', (r && r.message) || 'Something went wrong.'));
+        return;
+      }
+      if (r.exists) {
+        $('#repCode').textContent = 'DRAFT EXISTS';
+        out.appendChild(repLine('', r.message));
+        var again = el('div', 'rep-links'); var bt = el('button', null, 'Make another draft'); bt.type = 'button';
+        bt.onclick = function () { runReport({ again: true }); }; again.appendChild(bt); out.appendChild(again);
+        return;
+      }
+      $('#repCode').textContent = opts.dry ? 'PREVIEW' : 'DRAFT SAVED';
+      out.appendChild(el('div', 'ok', opts.dry ? 'Preview only. Nothing created.' : 'Draft saved. Not sent.'));
+      (r.headlines || []).forEach(function (h) { out.appendChild(repLine('', h)); });
+      (r.flags || []).slice(0, 4).forEach(function (f) { out.appendChild(repLine('f', '\u25B8 ' + f)); });
+      if (r.file) out.appendChild(repLine('f', 'Source: ' + r.file + ' (' + r.data_date + ')'));
+      var links = el('div', 'rep-links');
+      if (!opts.dry) {
+        if (r.doc_url) { var a = el('a', null, 'Open report'); a.href = r.doc_url; a.target = '_blank'; a.rel = 'noopener'; links.appendChild(a); }
+        var g = el('a', null, 'Open drafts'); g.href = 'https://mail.google.com/mail/#drafts'; g.target = '_blank'; g.rel = 'noopener'; links.appendChild(g);
+      }
+      if (links.childNodes.length) out.appendChild(links);
+    }).catch(function () {
+      out.replaceChildren(); $('#repCode').textContent = 'PROBLEM';
+      out.appendChild(repLine('bad', 'Could not reach the web app. The script may need the new report code (see the setup guide).'));
+    }).then(function () { repBusy = false; b1.disabled = b2.disabled = false; });
+  }
+  $('#repBtn').onclick = function () { runReport({}); };
+  $('#repPrev').onclick = function () { runReport({ dry: true }); };
+
+  /* ---------- handwritten notes ---------- */
+  var AREAS = ['Admissions', 'Leadership', 'Partnerships', 'Marketing', 'Personal', 'Other'];
+  var scanItems = [], scanBusy = false;
+  function apiPost(action, bodyObj) {
+    var u = new URL(cfg.url); u.searchParams.set('token', cfg.token); u.searchParams.set('action', action);
+    return fetch(u.toString(), { method: 'POST', redirect: 'follow', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(bodyObj) }).then(function (r) { return r.json(); });
+  }
+  function shrinkPhoto(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        var MAX = 2000, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, MAX / Math.max(w, h));
+        var c = document.createElement('canvas'); c.width = Math.round(w * k); c.height = Math.round(h * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        var data = c.toDataURL('image/jpeg', 0.85);
+        resolve({ image: data.split(',')[1], mime: 'image/jpeg', kb: Math.round(data.length * 0.75 / 1024) });
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('That file is not a photo I can open.')); };
+      img.src = url;
     });
   }
-  $('#rpPreview').onclick = function () { rpCall({ dry: '1' }, 'dry'); };
-  $('#rpRun').onclick = function () {
-    if (!window.confirm('Build this week\'s report and save a draft to Todd? Nothing is sent.')) return;
-    rpCall({}, 'run');
+  function scanSelected() { return scanItems.filter(function (i) { return i.on; }).length; }
+  function scanUpdateCount() {
+    var n = scanSelected();
+    $('#scCount').textContent = n + ' OF ' + scanItems.length + ' TICKED';
+    $('#scAdd').textContent = n ? 'Add ' + n + ' to missions' : 'Nothing ticked';
+    $('#scAdd').disabled = !n;
+  }
+  function scanRender() {
+    var host = $('#scRows'); host.replaceChildren();
+    scanItems.forEach(function (it) {
+      var row = el('div', 'sc-row' + (it.on ? '' : ' off') + (it.uncertain ? ' chk' : ''));
+      var cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = it.on; cb.setAttribute('aria-label', 'Include: ' + it.title);
+      cb.onchange = function () { it.on = cb.checked; row.classList.toggle('off', !it.on); scanUpdateCount(); };
+      var ti = document.createElement('input'); ti.type = 'text'; ti.className = 'sc-t'; ti.value = it.title; ti.dir = 'auto'; ti.maxLength = 300;
+      ti.oninput = function () { it.title = ti.value; };
+      var meta = el('div', 'sc-meta');
+      var star = el('button', 'sc-star', '\u2605'); star.type = 'button'; star.setAttribute('aria-pressed', String(!!it.priority)); star.title = 'Priority';
+      star.onclick = function () { it.priority = !it.priority; star.setAttribute('aria-pressed', String(it.priority)); };
+      var sel = document.createElement('select'); sel.setAttribute('aria-label', 'Area');
+      AREAS.forEach(function (a) { var o = document.createElement('option'); o.value = a; o.textContent = a; if (a === it.area) o.selected = true; sel.appendChild(o); });
+      sel.onchange = function () { it.area = sel.value; };
+      var due = document.createElement('input'); due.type = 'date'; due.value = it.due || ''; due.setAttribute('aria-label', 'Due date'); due.onchange = function () { it.due = due.value; };
+      meta.append(star, sel, due);
+      if (it.kind === 'note') meta.appendChild(el('span', 'tag', 'NOTE'));
+      if (it.uncertain) meta.appendChild(el('span', 'tag gold', 'CHECK SPELLING'));
+      row.append(cb, ti, meta);
+      if (it.note) row.appendChild(el('div', 'sc-note', 'Note: ' + it.note));
+      host.appendChild(row);
+    });
+    scanUpdateCount();
+  }
+  function closeScan() { $('#scModal').hidden = true; scanItems = []; }
+  $('#scanBtn').onclick = function () { if (!linked()) { openSetup(); return; } if (!scanBusy) $('#scanFile').click(); };
+  $('#scanFile').addEventListener('change', function () {
+    var f = this.files && this.files[0]; this.value = ''; if (!f || scanBusy) return;
+    scanBusy = true; $('#scanBtn').disabled = true; $('#scanCode').textContent = 'READING'; notice('Reading your handwriting. This takes about 20 seconds…');
+    shrinkPhoto(f).then(function (ph) { return apiPost('scan_notes', { image: ph.image, mime: ph.mime }); }).then(function (r) {
+      if (!r || !r.ok) { notice((r && r.message) || 'Could not read that photo.', true); $('#scanCode').textContent = 'PROBLEM'; return; }
+      if (!r.tasks || !r.tasks.length) { notice('I could not find any items on that page. Try again with the whole page in view.', true); $('#scanCode').textContent = 'EMPTY'; return; }
+      scanItems = r.tasks.map(function (t) { return { title: t.title, due: t.due || '', priority: !!t.priority, area: t.area || 'Other', kind: t.kind, note: t.note || '', uncertain: !!t.uncertain, on: t.kind !== 'note' }; });
+      $('#scMsg').textContent = 'Read from your page' + (r.page_date ? ' dated ' + r.page_date : '') + '. Fix any wording, then add the ones you want. Nothing is saved until you tap Add.';
+      scanRender(); $('#scModal').hidden = false; notice(''); $('#scanCode').textContent = 'PHOTO';
+    }).catch(function (e) {
+      notice(e && e.message && !/fetch|network/i.test(e.message) ? e.message : 'Could not reach the web app. The script may need the notes scanner code (see the setup guide).', true); $('#scanCode').textContent = 'PROBLEM';
+    }).then(function () { scanBusy = false; $('#scanBtn').disabled = false; });
+  });
+  $('#scAll').onclick = function () { scanItems.forEach(function (i) { i.on = true; }); scanRender(); };
+  $('#scNone').onclick = function () { scanItems.forEach(function (i) { i.on = false; }); scanRender(); };
+  $('#scCancel').onclick = closeScan;
+  $('#scAdd').onclick = function () {
+    var picked = scanItems.filter(function (i) { return i.on && i.title.trim(); });
+    if (!picked.length) return;
+    $('#scAdd').disabled = true; $('#scAdd').textContent = 'Adding…';
+    apiPost('add_tasks', { tasks: picked.map(function (i) { return { title: i.title.trim(), due: i.due, area: i.area, priority: i.priority, note: i.note }; }) }).then(function (r) {
+      if (r && r.ok) { closeScan(); notice(r.message); $('#scanCode').textContent = 'ADDED ' + r.added; scheduleRefresh(300); }
+      else { notice((r && r.message) || 'Could not add them.', true); scanUpdateCount(); }
+    }, function () { notice('Could not add them. Your ticks are still here, try again.', true); scanUpdateCount(); });
   };
 
   /* ---------- setup ---------- */

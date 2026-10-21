@@ -1,0 +1,32 @@
+{
+  "name": "Jarvis Glance",
+  "short_name": "Glance",
+  "id": "glance",
+  "description": "Compact Jarvis: talk, next meetings, top missions",
+  "start_url": "./?view=glance",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#02060F",
+  "theme_color": "#02060F",
+  "icons": [
+    {
+      "src": "icon-glance-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-glance-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-glance-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
