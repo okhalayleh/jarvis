@@ -534,9 +534,12 @@ html.glance .donebar { display: none; }
 
   /* ---------- dashboard ---------- */
   function scheduleRefresh(ms) { clearTimeout(refreshT); refreshT = setTimeout(refresh, ms); }
+  var editGen = 0;   // bumped on every tick/undo so a slower, older refresh cannot overwrite it
   function refresh() {
     if (!linked()) return Promise.resolve();
+    var g = editGen;
     return api('dashboard').then(function (d) {
+      if (g !== editGen) { scheduleRefresh(1500); return; }
       if (!d || !d.ok) { $('#tlCode').textContent = 'OFFLINE'; return; }
       dash = d; skew = d.nowMs - Date.now(); renderAll(); tickClock(); loadOutbox();
     }, function () { $('#tlCode').textContent = 'OFFLINE'; });
@@ -623,7 +626,7 @@ html.glance .donebar { display: none; }
       var row = el('div', 'task');
       var b = el('button', 'tick'); b.type = 'button'; b.setAttribute('aria-label', 'Mark done: ' + t.title);
       b.onclick = function () {
-        row.remove();
+        editGen++; row.remove();
         if (dash) { dash.tasks = (dash.tasks || []).filter(function (x) { return x.id !== t.id; }); dash.openCount = Math.max(0, (dash.openCount || 1) - 1); if (t.overdue) dash.overdueCount = Math.max(0, (dash.overdueCount || 1) - 1); dash.done = [{ id: t.id, title: t.title, area: t.area, overdue: !!t.overdue, doneMs: Date.now() + skew }].concat(dash.done || []); $('#taskCode').textContent = dash.openCount + ' OPEN'; renderDone(); renderStats(); }
         api('task_done', { id: t.id }).then(function () { scheduleRefresh(400); }, function () { notice('Could not save that.', true); scheduleRefresh(400); });
       };
@@ -661,7 +664,7 @@ html.glance .donebar { display: none; }
     });
   }
   function reopen(t, row) {
-    row.remove();
+    editGen++; row.remove();
     if (dash) {
       dash.done = (dash.done || []).filter(function (d) { return d !== t; });
       dash.tasks = [{ id: t.id, title: t.title, due: '', pri: false, area: t.area, overdue: !!t.overdue }].concat(dash.tasks || []);
