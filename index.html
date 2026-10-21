@@ -167,6 +167,19 @@ button { cursor: pointer; }
 #doneList { max-height: 36vh; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; }
 .task.done .tt > div:first-child { text-decoration: line-through; text-decoration-color: rgba(143, 169, 200, .6); color: var(--ink-2); font-weight: 500; }
 .tick.on { border-color: var(--ok); }
+.rp-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+.rp-btns .btn { flex: 1 1 140px; }
+.btn[disabled] { opacity: .5; cursor: wait; }
+.rp-out { margin-top: 10px; font-size: 14px; }
+.rp-out .rp-msg { color: var(--ink-2); }
+.rp-out .rp-msg.bad { color: var(--red); }
+.rp-out .rp-msg.ok { color: var(--ok); }
+.rp-out ul { margin: 8px 0 0; padding-left: 18px; }
+.rp-out li { margin: 4px 0; }
+.rp-out .rp-flags li { color: var(--gold); }
+.rp-out .rp-links { display: flex; gap: 12px; margin-top: 8px; flex-wrap: wrap; }
+.rp-out a { color: var(--cyan); font: 500 12px var(--f-mono); letter-spacing: .1em; text-transform: uppercase; }
+.rp-meta { font: 400 10px var(--f-mono); letter-spacing: .12em; color: var(--ink-2); margin-top: 8px; text-transform: uppercase; }
 .tick.on:hover { background: rgba(255, 107, 91, .18); border-color: var(--red); }
 .tick.on:hover::after { content: "\21BA"; color: var(--red); }
 .tick.on::after { content: "\2713"; display: block; text-align: center; line-height: 19px; font-size: 13px; color: var(--ok); }
@@ -220,6 +233,14 @@ button { cursor: pointer; }
     <section class="hud"><div class="in">
       <div class="ph"><h2>Inbox</h2><span class="code" id="inboxCode">SYS/02</span></div>
       <div id="inbox"><div class="empty">Nothing loaded yet.</div></div>
+    </div></section>
+    <section class="hud"><div class="in">
+      <div class="ph"><h2>Reports</h2><span class="code" id="rpCode">WEEKLY</span></div>
+      <div class="rp-btns">
+        <button class="btn" id="rpPreview" type="button">Preview numbers</button>
+        <button class="btn gold" id="rpRun" type="button">Weekly pipeline report</button>
+      </div>
+      <div class="rp-out" id="rpOut" aria-live="polite"><div class="empty">Preview reads the newest export and creates nothing. The report saves a draft to Todd. It never sends.</div></div>
     </div></section>
   </aside>
 
@@ -553,6 +574,51 @@ button { cursor: pointer; }
     $('#addIn').value = '';
     api('add_task', { title: v }).then(function (r) { notice(r && r.message ? r.message : ''); scheduleRefresh(300); }, function () { notice('Could not add that.', true); });
   });
+
+  /* ---------- weekly report ---------- */
+  function rpRender(r, mode) {
+    var host = $('#rpOut'); host.replaceChildren();
+    var msg = el('div', 'rp-msg');
+    if (!r || r.ok === false && !r.exists) { msg.className = 'rp-msg bad'; msg.textContent = (r && r.message) || 'Something went wrong.'; host.appendChild(msg); return; }
+    if (r.exists) { msg.textContent = r.message; host.appendChild(msg); }
+    else if (mode === 'dry') { msg.textContent = 'Preview only. Nothing was created.'; host.appendChild(msg); }
+    else { msg.className = 'rp-msg ok'; msg.textContent = 'Draft saved to ' + (r.to ? 'Todd' : 'your drafts') + '. Not sent. Review it in Gmail.'; host.appendChild(msg); }
+    if (r.headlines && r.headlines.length) {
+      var ul = el('ul'); r.headlines.filter(function (h) { return !/^Top flag:/.test(h); }).forEach(function (h) { ul.appendChild(el('li', null, h)); }); host.appendChild(ul);
+    }
+    if (r.flags && r.flags.length) {
+      var fl = el('ul', 'rp-flags'); r.flags.slice(0, 4).forEach(function (f) { fl.appendChild(el('li', null, f)); }); host.appendChild(fl);
+    }
+    if (r.doc_url || r.pdf_url) {
+      var lk = el('div', 'rp-links');
+      if (r.doc_url) { var a = el('a', null, 'Open report'); a.href = r.doc_url; a.target = '_blank'; a.rel = 'noopener'; lk.appendChild(a); }
+      if (r.pdf_url) { var b = el('a', null, 'Open PDF'); b.href = r.pdf_url; b.target = '_blank'; b.rel = 'noopener'; lk.appendChild(b); }
+      lk.appendChild((function () { var g = el('a', null, 'Gmail drafts'); g.href = 'https://mail.google.com/mail/u/0/#drafts'; g.target = '_blank'; g.rel = 'noopener'; return g; })());
+      host.appendChild(lk);
+    }
+    if (r.file) host.appendChild(el('div', 'rp-meta', 'Source: ' + r.file + (r.data_date ? ' · ' + r.data_date : '')));
+  }
+  function rpCall(params, mode) {
+    if (!linked()) { openSetup(); return; }
+    var btns = [$('#rpPreview'), $('#rpRun')]; btns.forEach(function (b) { b.disabled = true; });
+    $('#rpCode').textContent = 'WORKING';
+    var host = $('#rpOut'); host.replaceChildren(el('div', 'empty', mode === 'dry' ? 'Reading the newest export…' : 'Building the report. This can take up to a minute…'));
+    api('weekly_report', params).then(function (r) {
+      if (r && r.exists && mode !== 'again') {
+        rpRender(r, mode);
+        if (window.confirm('A draft with this week\'s report already exists in your Gmail drafts. Make another one?')) { btns.forEach(function (b) { b.disabled = false; }); rpCall({ again: '1' }, 'again'); return; }
+      } else rpRender(r, mode);
+      $('#rpCode').textContent = 'WEEKLY'; btns.forEach(function (b) { b.disabled = false; });
+    }, function () {
+      rpRender({ ok: false, message: 'Could not reach the script. It may still be working. Check your Gmail drafts in a minute before trying again.' });
+      $('#rpCode').textContent = 'WEEKLY'; btns.forEach(function (b) { b.disabled = false; });
+    });
+  }
+  $('#rpPreview').onclick = function () { rpCall({ dry: '1' }, 'dry'); };
+  $('#rpRun').onclick = function () {
+    if (!window.confirm('Build this week\'s report and save a draft to Todd? Nothing is sent.')) return;
+    rpCall({}, 'run');
+  };
 
   /* ---------- setup ---------- */
   function openSetup() { $('#sUrl').value = cfg.url; $('#sTok').value = cfg.token; $('#sAgent').value = cfg.agent; $('#sMsg').textContent = ''; $('#setup').hidden = false; $('#sUrl').focus(); }
