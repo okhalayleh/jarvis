@@ -751,8 +751,8 @@ function showLock(mode) {
   h.innerHTML = `<div class="lock" data-m="${mode}"><div class="box"><div class="cols"><i></i><i></i><i></i><i></i></div>
     <h2>${mode === 'set' ? 'Set your access code' : 'Jarvis is locked'}</h2>
     <p>${mode === 'set' ? 'Choose 4 to 8 digits. You will need it on this device every ' + S.settings.lockHours + ' hours.' : 'Enter your access code.'}</p>
-    <input id="lc" type="password" inputmode="numeric" autocomplete="off" maxlength="8" autofocus>
-    ${mode === 'set' ? '<input id="lc2" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="again" style="margin-top:10px">' : ''}
+    <input id="lc" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" spellcheck="false" data-lpignore="true" maxlength="8" autofocus>
+    ${mode === 'set' ? '<input id="lc2" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" autocorrect="off" spellcheck="false" data-lpignore="true" maxlength="8" placeholder="again" style="margin-top:10px">' : ''}
     <div class="err" id="lerr"></div><button class="pill" id="lgo">${mode === 'set' ? 'Save code' : 'Unlock'}</button></div></div>`;
   const go = async () => {
     const v = $('#lc').value.replace(/\D/g, '');
