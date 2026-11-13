@@ -1,0 +1,139 @@
+{
+  "id": "manara",
+  "name": "Manara School",
+  "owner": "Omar",
+  "assistant": "Jarvis",
+  "wake_words": [
+    "jarvis"
+  ],
+  "tagline": "Admissions & Financial Aid",
+  "lang": "en",
+  "brand": {
+    "primary": "#262452",
+    "secondary": "#941730",
+    "rail_from": "#262452",
+    "rail_to": "#14132b",
+    "rail_glow": "#941730",
+    "ink": "#1d1c33",
+    "paper": "#f7f6fa"
+  },
+  "fonts": {
+    "body": "Rapor, Poppins, system-ui, sans-serif",
+    "display": "Rapor, Poppins, system-ui, sans-serif",
+    "accent": "Resonay, 'Cormorant Garamond', Georgia, serif",
+    "arabic": "'Loew Next Arabic', 'IBM Plex Sans Arabic', system-ui, sans-serif",
+    "google": "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=IBM+Plex+Sans+Arabic:wght@400;600&family=JetBrains+Mono:wght@500&display=swap"
+  },
+  "links": {
+    "applicant": "https://manaraschool.heiapply.com/engine/direct/proc?pg=4&vw={sid}&ref={sid}",
+    "heiapply": "https://manaraschool.heiapply.com/engine/home",
+    "pulse": "https://claude.ai/artifact/RLLVyYJy38PXH3UacqYSfN",
+    "drive": "https://drive.google.com/drive/folders/1AIiaP-kJgGeZXPxf7Ivg7kgBTkyHzjOB",
+    "gmail_drafts": "https://mail.google.com/mail/u/0/#drafts"
+  },
+  "pair_url": "https://script.google.com/macros/s/AKfycbwNcpc1Zj98IX2yS6lW2rOdZw7mfLtanCIhlwShrYI/dev",
+  "pipeline": {
+    "cycle": "2027/28",
+    "phases": [
+      {
+        "label": "Phase I",
+        "nodes": [
+          [
+            "inquiries",
+            "Inquiries"
+          ],
+          [
+            "submitted",
+            "Submitted"
+          ],
+          [
+            "?",
+            "Phase I review"
+          ],
+          [
+            "cleared_for_cat4",
+            "Cleared for CAT4"
+          ]
+        ]
+      },
+      {
+        "label": "CAT4",
+        "nodes": [
+          [
+            "cat4_taken",
+            "CAT4 taken"
+          ],
+          [
+            "?",
+            "Average ≥ 8.5"
+          ],
+          [
+            "cat4_pass",
+            "Passed"
+          ]
+        ]
+      },
+      {
+        "label": "File",
+        "nodes": [
+          [
+            "file_completion",
+            "File completion"
+          ],
+          [
+            "itep_taken",
+            "iTEP done"
+          ],
+          [
+            "interviewed",
+            "Interviewed"
+          ]
+        ]
+      },
+      {
+        "label": "Decision",
+        "nodes": [
+          [
+            "under_review",
+            "Admissions Review"
+          ],
+          [
+            "?",
+            "Committee"
+          ],
+          [
+            "admitted",
+            "Admitted"
+          ],
+          [
+            "enrolled_or_onboarding",
+            "Enrolled"
+          ]
+        ]
+      }
+    ]
+  },
+  "kpis": [
+    [
+      "inquiries",
+      "Inquiries"
+    ],
+    [
+      "submitted",
+      "Submitted"
+    ],
+    [
+      "awaiting_phase1_review",
+      "Awaiting Phase I"
+    ],
+    [
+      "fu:submit_ready",
+      "Ready to submit"
+    ],
+    [
+      "cat4_taken",
+      "CAT4 taken"
+    ]
+  ],
+  "rules_note": "Counts use the Pulse rules: new applicants only (numeric ID), CAT4 pass = average 8.5 or higher. No scores are shown or spoken."
+}
