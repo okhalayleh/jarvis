@@ -205,7 +205,7 @@ input.field:focus,textarea.field:focus{border-color:var(--brand)}
 .lock p{opacity:.75;margin:0 0 18px}
 .lock input{width:100%;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:24px;text-align:center;letter-spacing:10px;outline:none;-webkit-text-security:disc}
 .lock .err{color:#ffb3ba;min-height:22px;margin-top:8px;font-size:13px}
-.lock .pill{margin-top:14px}
+.lock .pill{margin-top:14px;background:#fff;color:var(--brand);border-color:#fff;font-weight:600;padding:0 22px}
 .lock .cols{justify-content:center;height:40px}.lock .cols i{width:8px}
 
 /* ===== tab bar (phones) ===== */
@@ -761,7 +761,7 @@ function showLock(mode) {
     else if (await sha(v) !== LS.get('code')) { $('#lerr').textContent = 'Not that one.'; $('#lc').value = ''; return; }
     LS.set('unlockedAt', Date.now()); h.innerHTML = ''; render(); startWake();
   };
-  $('#lgo').onclick = go; h.querySelectorAll('input').forEach(i => i.onkeydown = e => e.key === 'Enter' && go());
+  $('#lgo').onclick = go; h.querySelectorAll('input').forEach(i => i.onkeydown = e => { if (e.key === 'Enter') go(); });
   setTimeout(() => $('#lc')?.focus(), 50);
 }
 setInterval(() => { if (!$('#lockHost').innerHTML && !S.conv && document.visibilityState === 'visible') LS.set('unlockedAt', Math.max(LS.get('unlockedAt', 0), Date.now() - 1000)); }, 60000);
@@ -907,7 +907,7 @@ function viewTalk() {
 function bindTalk() {
   $('#orb').onclick = () => S.conv ? stopTalk() : startTalk('');
   const send = () => { const v = $('#typein').value.trim(); if (!v) return; $('#typein').value = ''; if (S.conv) { S.conv.sendUserMessage(v); addMsg('user', v); S.session.userEnd = performance.now(); } else startTalk(v); };
-  $('#typego').onclick = send; $('#typein').onkeydown = e => e.key === 'Enter' && send();
+  $('#typego').onclick = send; $('#typein').onkeydown = e => { if (e.key === 'Enter') send(); };
   $('#clr').onclick = () => { S.transcript = []; paintTranscript(); };
 }
 function paintTalk() {
