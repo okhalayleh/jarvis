@@ -31,7 +31,7 @@
     "drive": "https://drive.google.com/drive/folders/1AIiaP-kJgGeZXPxf7Ivg7kgBTkyHzjOB",
     "gmail_drafts": "https://mail.google.com/mail/u/0/#drafts"
   },
-  "pair_url": "https://script.google.com/macros/s/AKfycbwNcpc1Zj98IX2yS6lW2rOdZw7mfLtanCIhlwShrYI/dev",
+  "pair_url": "https://script.google.com/a/macros/manaraschool.org/s/AKfycbwNcpc1Zj98IX2yS6lW2rOdZw7mfLtanCIhlwShrYI/dev",
   "pipeline": {
     "cycle": "2027/28",
     "phases": [
