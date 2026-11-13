@@ -1,0 +1,1156 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#262452">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jarvis">
+<meta name="robots" content="noindex,nofollow">
+<title>Jarvis</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link id="fontcss" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Cormorant+Garamond:ital,wght@1,500;1,600&family=IBM+Plex+Sans+Arabic:wght@400;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* ===== theme tokens (the pack overrides the brand ones) ===== */
+:root{
+  --brand:#262452; --brand2:#941730; --rail-from:#262452; --rail-to:#14132b; --rail-glow:#941730;
+  --f-body:Rapor,Poppins,system-ui,sans-serif; --f-display:Rapor,Poppins,system-ui,sans-serif;
+  --f-accent:Resonay,'Cormorant Garamond',Georgia,serif; --f-ar:'Loew Next Arabic','IBM Plex Sans Arabic',system-ui,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --bg:#f5f4f9; --card:#ffffff; --ink:#1d1c33; --ink2:#55546e; --ink3:#8a89a2; --line:#e3e2ec; --soft:#eeedf5;
+  --ok:#1f7a4d; --ok-bg:#e3f4ea; --watch:#a66300; --watch-bg:#fdf0d9; --bad:#b4232c; --bad-bg:#fbe4e5; --info:#2357a8; --info-bg:#e3ecfa;
+  --radius:10px; --rail:248px; --top:60px; --tab:68px;
+  --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
+}
+[data-theme=dark]{
+  --bg:#0f0e1f; --card:#18172e; --ink:#ecebf5; --ink2:#b5b4cc; --ink3:#7f7e99; --line:#2a2946; --soft:#21203a;
+  --ok:#5fd39a; --ok-bg:#163326; --watch:#f2b04f; --watch-bg:#33270f; --bad:#ff7a83; --bad-bg:#3a1a1e; --info:#86adf5; --info-bg:#172540;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:400 14.5px/1.5 var(--f-body);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:inherit}
+:lang(ar),[dir=rtl]{font-family:var(--f-ar)}
+.accent{font-family:var(--f-accent);font-style:italic;font-weight:500;letter-spacing:.2px}
+.mono{font-family:var(--f-mono)}
+.num{font-variant-numeric:tabular-nums}
+.muted{color:var(--ink3)}
+.hide{display:none!important}
+
+/* ===== layout ===== */
+.app{display:grid;grid-template-columns:var(--rail) 1fr;min-height:100vh;min-height:100dvh}
+.rail{position:sticky;top:0;height:100vh;height:100dvh;overflow:auto;color:#fff;
+  background:linear-gradient(180deg,var(--rail-from) 0%,var(--rail-to) 100%);display:flex;flex-direction:column;padding:18px 14px 0}
+.rail .mark{display:flex;align-items:center;gap:10px;padding:4px 8px 18px}
+.cols{display:flex;align-items:flex-end;gap:3px;height:26px}
+.cols i{display:block;width:5px;border-radius:1.5px;background:#fff}
+.cols i:nth-child(1){height:60%}.cols i:nth-child(2){height:100%;background:var(--rail-glow)}.cols i:nth-child(3){height:75%}.cols i:nth-child(4){height:45%}
+.rail .word{line-height:1.1}.rail .word b{font:600 19px var(--f-display);letter-spacing:.3px}
+.rail .word small{display:block;font-size:11px;opacity:.65;letter-spacing:.4px}
+.nav-g{margin:10px 0 2px;padding:0 10px;font-size:10.5px;letter-spacing:1.4px;text-transform:uppercase;opacity:.5}
+.nav a{display:flex;align-items:center;gap:10px;margin:2px 0;padding:8px 12px;border-radius:999px;text-decoration:none;color:rgba(255,255,255,.86);cursor:pointer;font-size:14px}
+.nav a:hover{background:rgba(255,255,255,.08)}
+.nav a.on{background:#fff;color:var(--brand);font-weight:500}
+.nav a svg{width:17px;height:17px;flex:none;opacity:.9}
+.badge{margin-left:auto;min-width:20px;padding:0 6px;height:19px;border-radius:999px;background:rgba(255,255,255,.16);font-size:11px;display:inline-flex;align-items:center;justify-content:center}
+.nav a.on .badge{background:var(--soft);color:var(--brand)}
+.badge.hot{background:var(--brand2);color:#fff}
+.rail .wave{margin-top:auto;height:120px;flex:none;opacity:.22;background:
+  radial-gradient(120% 80% at 50% 120%,var(--rail-glow) 0%,transparent 60%)}
+.rail .wave svg{width:100%;height:100%}
+.rail .who{display:flex;align-items:center;gap:8px;padding:10px 8px 14px;font-size:12px;opacity:.8}
+.dot{width:8px;height:8px;border-radius:50%;background:#7c7b95;display:inline-block}
+.dot.on{background:#41d38a;box-shadow:0 0 0 3px rgba(65,211,138,.18)}
+.dot.warn{background:#f2b04f}
+
+main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:20;height:calc(var(--top) + var(--safe-t));padding:var(--safe-t) 22px 0;display:flex;align-items:center;gap:14px;
+  background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.top h1{margin:0;font:600 19px var(--f-display);letter-spacing:.2px;white-space:nowrap}
+.search{flex:1;max-width:440px;margin-left:auto;position:relative}
+.search input{width:100%;height:36px;border-radius:999px;border:1px solid var(--line);background:var(--card);padding:0 70px 0 36px;outline:none}
+.search input:focus{border-color:var(--brand)}
+.search svg{position:absolute;left:12px;top:10px;width:16px;height:16px;opacity:.5}
+.search kbd{position:absolute;right:10px;top:8px;font:500 11px var(--f-mono);color:var(--ink3);border:1px solid var(--line);border-radius:6px;padding:1px 6px;background:var(--soft)}
+.results{position:absolute;top:42px;left:0;right:0;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);max-height:60vh;overflow:auto;z-index:40}
+.results div{padding:9px 14px;cursor:pointer;border-bottom:1px solid var(--line)}.results div:hover{background:var(--soft)}
+.results small{color:var(--ink3);margin-left:6px}
+.pill{height:36px;padding:0 15px;border-radius:999px;border:1px solid var(--line);background:var(--card);cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;text-decoration:none;font-size:13.5px}
+.pill:hover{border-color:var(--ink3)}
+.pill.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.pill.danger{color:var(--bad)}
+.pill.sm{height:30px;padding:0 12px;font-size:12.5px}
+.pill svg{width:16px;height:16px}
+#view{padding:22px 22px 40px;max-width:1400px;width:100%}
+
+/* ===== bits ===== */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:var(--brand)}
+.kpi:nth-child(even)::before{background:var(--brand2)}
+.kpi b{display:block;font:600 32px/1.1 var(--f-display);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.kpi span{display:block;font-size:10.5px;letter-spacing:1.3px;text-transform:uppercase;color:var(--ink2);margin-top:4px}
+.kpi small{display:block;color:var(--ink3);font-size:11.5px;margin-top:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;min-width:0}
+.panel h3{margin:0 0 10px;font:600 13px var(--f-display);letter-spacing:1.2px;text-transform:uppercase;color:var(--ink2);display:flex;align-items:center;gap:8px}
+.panel h3 svg{width:16px;height:16px;flex:none;color:var(--brand)}
+[data-theme=dark] .panel h3 svg{color:#b7b5ff}
+.panel h3 .r{margin-left:auto;text-transform:none;letter-spacing:0;font-weight:400}
+.row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .t{flex:1;min-width:0}
+.row .t div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .t small{color:var(--ink3);display:block}
+.when{font:500 12.5px var(--f-mono);color:var(--brand);min-width:52px}
+[data-theme=dark] .when{color:#b7b5ff}
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:500;white-space:nowrap}
+.chip.ok{background:var(--ok-bg);color:var(--ok)}.chip.watch{background:var(--watch-bg);color:var(--watch)}.chip.bad{background:var(--bad-bg);color:var(--bad)}.chip.info{background:var(--info-bg);color:var(--info)}
+.chip.plain{background:var(--soft);color:var(--ink2)}
+.empty{color:var(--ink3);padding:10px 0}
+.check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--ink3);background:transparent;cursor:pointer;flex:none;display:inline-flex;align-items:center;justify-content:center}
+.check.on{background:var(--brand);border-color:var(--brand)}
+.check.on::after{content:"";width:9px;height:5px;border:2px solid #fff;border-top:0;border-right:0;transform:rotate(-45deg) translate(1px,-1px)}
+table{width:100%;border-collapse:collapse}
+th{font:500 10.5px var(--f-mono);text-transform:uppercase;letter-spacing:1px;color:var(--ink3);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tbody tr{cursor:pointer}tbody tr:hover{background:var(--soft)}
+.src{font-size:11.5px;color:var(--ink3);margin-top:8px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:2px;background:var(--card)}
+.seg button{border:0;background:transparent;border-radius:999px;padding:4px 12px;cursor:pointer;font-size:12.5px;color:var(--ink2)}
+.seg button.on{background:var(--brand);color:#fff}
+input.field,select.field,textarea.field{width:100%;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:9px 12px;outline:none}
+input.field:focus,textarea.field:focus{border-color:var(--brand)}
+
+/* ===== talk ===== */
+.talk{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:18px;align-items:start}
+.stage{background:radial-gradient(120% 90% at 50% 0%,color-mix(in srgb,var(--brand) 14%,var(--card)) 0%,var(--card) 70%);border:1px solid var(--line);border-radius:16px;
+  min-height:520px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px 18px;position:relative;overflow:hidden}
+.orb{--in:0;--out:0;position:relative;width:min(56vw,250px);height:min(56vw,250px);border:0;background:transparent;cursor:pointer;padding:0;outline:none}
+.orb .core{position:absolute;inset:18%;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#4a47a0 0%,var(--brand) 45%,#120f2e 100%);
+  box-shadow:0 18px 50px -10px color-mix(in srgb,var(--brand) 70%,transparent),inset 0 -12px 30px rgba(0,0,0,.35);
+  transform:scale(calc(1 + var(--out)*.10 + var(--in)*.05));transition:transform .08s linear}
+.orb .ring{position:absolute;inset:6%;border-radius:50%;border:2px solid color-mix(in srgb,var(--brand2) 60%,transparent);opacity:calc(.25 + var(--in)*.7);transform:scale(calc(1 + var(--in)*.12));transition:transform .08s linear,opacity .1s}
+.orb .ring.r2{inset:0;border-color:color-mix(in srgb,var(--brand) 40%,transparent);opacity:calc(.15 + var(--out)*.6);transform:scale(calc(1 + var(--out)*.16))}
+.orb .bars{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:6px}
+.orb .bars i{width:7px;border-radius:3px;background:#fff;opacity:.92;height:calc(14px + var(--h,0)*1px);transition:height .08s linear}
+.orb .bars i:nth-child(2){background:#f2c2cb}
+.orb[data-mode=idle] .core{animation:breathe 5s ease-in-out infinite}
+.orb[data-mode=wake] .ring{animation:pulse 2.6s ease-out infinite}
+.orb[data-mode=connecting] .core{animation:breathe 1s ease-in-out infinite}
+@keyframes breathe{50%{transform:scale(1.04)}}
+@keyframes pulse{0%{transform:scale(.95);opacity:.5}100%{transform:scale(1.25);opacity:0}}
+.state{margin-top:18px;font:500 15px var(--f-display);text-align:center}
+.state small{display:block;color:var(--ink3);font:400 12.5px var(--f-body);margin-top:3px}
+.typebar{display:flex;gap:8px;width:100%;max-width:460px;margin-top:22px}
+.typebar input{flex:1}
+.transcript{max-height:330px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px}
+.msg{max-width:88%;padding:8px 12px;border-radius:14px;font-size:14px;line-height:1.45}
+.msg.user{align-self:flex-end;background:var(--brand);color:#fff;border-bottom-right-radius:4px}
+.msg.ai{align-self:flex-start;background:var(--soft);border-bottom-left-radius:4px}
+.acts{display:flex;flex-direction:column;gap:8px}
+.act{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--card)}
+.act .ic{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex:none;background:var(--soft);color:var(--brand)}
+.act .ic svg{width:16px;height:16px}
+.act.failed{border-color:var(--bad)}.act.failed .ic{background:var(--bad-bg);color:var(--bad)}
+.act.done .ic{background:var(--ok-bg);color:var(--ok)}
+.act .t{flex:1;min-width:0}.act .t small{color:var(--ink3);display:block}
+.wa{background:#e6ffda;color:#111b21;border-radius:10px 10px 10px 2px;padding:8px 10px;margin-top:6px;white-space:pre-wrap;font:14px/1.4 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;box-shadow:0 1px .5px rgba(0,0,0,.13)}
+[data-theme=dark] .wa{background:#005c4b;color:#e9edef}
+.mail{border:1px solid var(--line);border-radius:8px;margin-top:6px;overflow:hidden;font-size:13px}
+.mail .mh{background:var(--brand);color:#fff;padding:6px 10px;font-size:12px}
+.mail .mb{padding:8px 10px;white-space:pre-wrap;max-height:160px;overflow:auto}
+
+/* ===== flowchart, cards, chart ===== */
+.flow{overflow-x:auto}
+.flow svg{display:block;min-width:720px}
+.flow .node rect{fill:var(--card);stroke:var(--line)}
+.flow .node text{fill:var(--ink)}
+.flow .node .n{font:600 17px var(--f-display)}
+.flow .node .l{font:400 11px var(--f-body);fill:var(--ink2)}
+.flow .dia{fill:var(--watch-bg);stroke:var(--watch)}
+.flow .dl{font:500 10px var(--f-body);fill:var(--watch)}
+.flow .ph{font:500 10px var(--f-mono);fill:var(--ink3);letter-spacing:1px}
+.flow .arrow{stroke:var(--ink3);stroke-width:1.4;fill:none}
+.card-k{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 10px}
+.card-k div{background:var(--soft);border-radius:8px;padding:8px 12px;min-width:110px}
+.card-k b{font:600 22px var(--f-display);display:block}
+.card-k span{font-size:11px;color:var(--ink2)}
+.chart svg{width:100%;max-width:760px;height:auto;display:block}
+.chart .ax{stroke:var(--line)}.chart .lab{font:400 10px var(--f-body);fill:var(--ink3)}
+
+/* ===== drawer, sheet, toast, banner, lock ===== */
+.scrim{position:fixed;inset:0;background:rgba(10,9,25,.38);z-index:60}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);background:var(--card);z-index:61;border-left:1px solid var(--line);padding:calc(18px + var(--safe-t)) 20px 30px;overflow:auto;animation:slin .18s ease-out}
+@keyframes slin{from{transform:translateX(30px);opacity:0}}
+.drawer h2{margin:0 0 4px;font:600 20px var(--f-display)}
+.kv{display:grid;grid-template-columns:130px 1fr;gap:6px 12px;margin:14px 0;font-size:13.5px}
+.kv dt{color:var(--ink3)}.kv dd{margin:0}
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + var(--safe-b));z-index:80;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:999px;font-size:13.5px;box-shadow:0 8px 30px rgba(0,0,0,.2);animation:up .2s ease-out}
+@keyframes up{from{transform:translateY(8px);opacity:0}}
+.banner{position:fixed;top:calc(var(--top) + var(--safe-t) + 8px);left:50%;transform:translateX(-50%);z-index:81;background:var(--bad);color:#fff;padding:10px 14px 10px 16px;border-radius:10px;
+  display:flex;gap:12px;align-items:center;max-width:min(560px,92vw);box-shadow:0 10px 30px rgba(180,35,44,.35)}
+.banner button{background:rgba(255,255,255,.2);border:0;color:#fff;border-radius:999px;padding:4px 10px;cursor:pointer}
+.lock{position:fixed;inset:0;z-index:100;background:linear-gradient(180deg,var(--rail-from),var(--rail-to));color:#fff;display:flex;align-items:center;justify-content:center;padding:24px}
+.lock .box{width:min(360px,100%);text-align:center}
+.lock h2{font:600 26px var(--f-display);margin:16px 0 4px}
+.lock p{opacity:.75;margin:0 0 18px}
+.lock input{width:100%;height:52px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:24px;text-align:center;letter-spacing:10px;outline:none}
+.lock .err{color:#ffb3ba;min-height:22px;margin-top:8px;font-size:13px}
+.lock .pill{margin-top:14px}
+.lock .cols{justify-content:center;height:40px}.lock .cols i{width:8px}
+
+/* ===== tab bar (phones) ===== */
+.tabbar{display:none}
+@media (max-width:900px){
+  .app{grid-template-columns:1fr}
+  .rail{display:none}
+  .top{padding:var(--safe-t) 14px 0;gap:10px}
+  .top h1{font-size:18px}
+  .search{max-width:none}
+  .search kbd,.top .wide{display:none}
+  #view{padding:14px 14px calc(var(--tab) + var(--safe-b) + 24px)}
+  .kpis{grid-template-columns:repeat(5,minmax(132px,1fr));overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -14px 14px;padding:0 14px}
+  .kpi{scroll-snap-align:start}
+  .grid2,.grid3,.talk{grid-template-columns:1fr}
+  .stage{min-height:calc(100dvh - var(--top) - var(--tab) - 120px)}
+  .tabbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:30;height:calc(var(--tab) + var(--safe-b));padding-bottom:var(--safe-b);
+    background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+  .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;color:var(--ink3);text-decoration:none;cursor:pointer;position:relative}
+  .tabbar a svg{width:21px;height:21px}
+  .tabbar a.on{color:var(--brand)}
+  [data-theme=dark] .tabbar a.on{color:#c9c7ff}
+  .tabbar a.mic{margin-top:-22px}
+  .tabbar a.mic span.b{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#4a47a0,var(--brand) 55%,#120f2e);display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 8px 22px -6px var(--brand);border:3px solid var(--card)}
+  .tabbar a.mic.live span.b{background:var(--brand2)}
+  .tabbar .tb{position:absolute;top:6px;right:calc(50% - 20px);min-width:16px;height:16px;border-radius:8px;background:var(--brand2);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+  .drawer{width:100vw;border-left:0}
+  .kv{grid-template-columns:110px 1fr}
+  .hide-m{display:none!important}
+}
+@media (max-width:420px){ .kpi b{font-size:26px} .row .when{min-width:44px} }
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:61;background:var(--card);border-radius:18px 18px 0 0;padding:10px 14px calc(18px + var(--safe-b));animation:up .18s ease-out}
+.sheet a{display:flex;align-items:center;gap:12px;padding:13px 10px;border-bottom:1px solid var(--line);text-decoration:none;cursor:pointer}
+.sheet a svg{width:20px;height:20px;color:var(--brand)}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="rail" aria-label="Navigation">
+    <div class="mark"><div class="cols"><i></i><i></i><i></i><i></i></div><div class="word"><b id="wordmark">Jarvis</b><small id="subword">for Omar · Manara</small></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="wave"><svg viewBox="0 0 240 120" preserveAspectRatio="none"><path d="M0 60 Q 30 40 60 60 T 120 60 T 180 60 T 240 60" stroke="#fff" fill="none" stroke-width="1.2"/><path d="M0 75 Q 30 55 60 75 T 120 75 T 180 75 T 240 75" stroke="#fff" fill="none" stroke-width="1"/><path d="M0 90 Q 30 70 60 90 T 120 90 T 180 90 T 240 90" stroke="#fff" fill="none" stroke-width=".8"/><path d="M0 105 Q 30 85 60 105 T 120 105 T 180 105 T 240 105" stroke="#fff" fill="none" stroke-width=".6"/></svg></div>
+    <div class="who"><span class="dot" id="netdot"></span><span id="netlabel">Not connected</span></div>
+  </aside>
+  <main>
+    <header class="top">
+      <h1 id="title">Today</h1>
+      <div class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input id="q" placeholder="Search people, applicants, tasks" autocomplete="off" spellcheck="false">
+        <kbd>⌘K</kbd>
+        <div class="results hide" id="results"></div>
+      </div>
+      <button class="pill primary wide" id="talkBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span>Talk</span></button>
+      <button class="pill wide" id="refreshBtn" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></svg></button>
+    </header>
+    <section id="view"></section>
+  </main>
+</div>
+<nav class="tabbar" id="tabbar"></nav>
+<div id="overlay"></div>
+<div class="toasts" id="toasts"></div>
+<div id="bannerHost"></div>
+<div id="lockHost"></div>
+
+<script type="module">
+/* =====================================================================
+   JARVIS CORE  (no school names, data or brand in here: those come from the pack)
+   ===================================================================== */
+const VERSION = '2.0.0';
+const SDK_URL = 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.36.1/+esm';
+const PACK_ID = new URLSearchParams(location.search).get('pack') || 'manara';
+const TZ = 'Africa/Cairo';
+
+/* ---------- tiny helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem('j2.' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('j2.' + k, JSON.stringify(v)); } catch (e) {} },
+  del(k) { try { localStorage.removeItem('j2.' + k); } catch (e) {} }
+};
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const isAr = s => /[؀-ۿ]/.test(String(s || ''));
+const dirAttr = s => isAr(s) ? ' dir="rtl" lang="ar"' : '';
+const plural = (n, w) => n + ' ' + w + (n === 1 ? '' : 's');
+
+/* ---------- time in Cairo ---------- */
+const fmtParts = (d, o) => new Intl.DateTimeFormat('en-GB', Object.assign({ timeZone: TZ }, o)).formatToParts(d).reduce((a, p) => (a[p.type] = p.value, a), {});
+function cairoISO(d) { const p = fmtParts(d, { year: 'numeric', month: '2-digit', day: '2-digit' }); return `${p.year}-${p.month}-${p.day}`; }
+function cairoHM(d) { const p = fmtParts(d, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); return `${p.hour}:${p.minute}`; }
+function cairoDay(d, long) { return new Intl.DateTimeFormat('en-GB', { timeZone: TZ, weekday: long ? 'long' : 'short', day: 'numeric', month: long ? 'long' : 'short' }).format(d); }
+function tzOffsetMin(ms) { const p = fmtParts(new Date(ms), { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', hourCycle: 'h23' }); return (Date.UTC(+p.year, p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - ms) / 60000; }
+function cairoToMs(str) { const m = String(str || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{1,2}):(\d{2})/); if (!m) return NaN; const guess = Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5]); return guess - tzOffsetMin(guess) * 60000; }
+function relDay(iso) { const t = cairoISO(new Date()), tm = cairoISO(new Date(Date.now() + 864e5)); return iso === t ? 'Today' : iso === tm ? 'Tomorrow' : cairoDay(new Date(Date.parse(iso + 'T12:00:00Z'))); }
+function ago(ms) { const s = (Date.now() - ms) / 1000; if (s < 60) return 'just now'; if (s < 3600) return Math.round(s / 60) + ' min ago'; if (s < 86400) return Math.round(s / 3600) + ' h ago'; return Math.round(s / 86400) + ' d ago'; }
+
+/* ---------- state ---------- */
+const S = {
+  pack: null, snap: LS.get('snap', null), view: LS.get('view', 'today'),
+  settings: Object.assign({ wake: true, theme: 'system', lockHours: 12, keepAwake: true, pvKey: '' }, LS.get('settings', {})),
+  perf: LS.get('perf', []), actions: [], transcript: [], conv: null, mode: 'idle', voice: null, voiceErr: '',
+  outbox: LS.get('outbox', []), drafts: LS.get('drafts', []), seen: LS.get('seenJobs', {}), net: 'off', filter: {}, wakeOn: false, session: null
+};
+const paired = () => !!(LS.get('api') && LS.get('key'));
+
+/* ---------- pairing: #pair=<key>&api=<url> arrives from the private link, then is wiped from the address bar ---------- */
+(function pairFromHash() {
+  if (!location.hash.startsWith('#pair=')) return;
+  const p = new URLSearchParams(location.hash.slice(1));
+  if (p.get('pair') && /^https:\/\/script\.google\.com\//.test(p.get('api') || '')) { LS.set('key', p.get('pair')); LS.set('api', p.get('api')); S.justPaired = true; }
+  history.replaceState(null, '', location.pathname + location.search);
+})();
+
+/* ---------- pack (brand + labels) ---------- */
+async function loadPack() {
+  try { S.pack = await fetch(`pack/${PACK_ID}/pack.json`, { cache: 'no-cache' }).then(r => r.json()); LS.set('pack', S.pack); }
+  catch (e) { S.pack = LS.get('pack', null) || { brand: {}, fonts: {}, links: {}, pipeline: { phases: [] }, kpis: [], assistant: 'Jarvis', owner: '' }; }
+  const b = S.pack.brand || {}, f = S.pack.fonts || {}, r = document.documentElement.style;
+  [['--brand', b.primary], ['--brand2', b.secondary], ['--rail-from', b.rail_from], ['--rail-to', b.rail_to], ['--rail-glow', b.rail_glow],
+   ['--f-body', f.body], ['--f-display', f.display], ['--f-accent', f.accent], ['--f-ar', f.arabic]].forEach(([k, v]) => v && r.setProperty(k, v));
+  if (f.google) $('#fontcss').href = f.google;
+  $('#wordmark').textContent = S.pack.assistant || 'Jarvis';
+  $('#subword').textContent = `for ${S.pack.owner || 'you'} · ${(S.pack.name || '').split(' ')[0]}`;
+  document.querySelector('meta[name=theme-color]').content = b.primary || '#262452';
+}
+
+/* ---------- theme ---------- */
+function applyTheme() {
+  const t = S.settings.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : S.settings.theme;
+  document.documentElement.dataset.theme = t;
+}
+matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change', applyTheme);
+
+/* ---------- toasts, banner ---------- */
+function toast(msg, ms = 2600) { const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; $('#toasts').appendChild(el); setTimeout(() => el.remove(), ms); }
+function banner(msg) {
+  $('#bannerHost').innerHTML = `<div class="banner" role="alert"><span>${esc(msg)}</span><button id="bx">OK</button></div>`;
+  $('#bx').onclick = () => $('#bannerHost').innerHTML = '';
+  clearTimeout(banner.t); banner.t = setTimeout(() => $('#bannerHost').innerHTML = '', 12000);
+}
+
+/* ---------- timings (shown in Settings for the latency test) ---------- */
+function perf(name, ms, extra) {
+  S.perf.unshift({ at: Date.now(), name, ms: Math.round(ms), extra: extra || '' });
+  S.perf = S.perf.slice(0, 120); LS.set('perf', S.perf);
+}
+
+/* ---------- backend ---------- */
+async function api(action, params = {}, opt = {}) {
+  const url = LS.get('api'), key = LS.get('key');
+  if (!url || !key) throw new Error('This device is not connected yet.');
+  const t0 = performance.now(), ctl = new AbortController(), tm = setTimeout(() => ctl.abort(), opt.timeout || 30000);
+  try {
+    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(Object.assign({ action, token: key }, params)), signal: ctl.signal, redirect: 'follow' });
+    const j = await r.json();
+    perf('api ' + action, performance.now() - t0, j && j.ms ? 'server ' + j.ms + ' ms' : '');
+    setNet('on');
+    if (j && j.ok === false && j.message === 'Not allowed.') { setNet('warn'); banner('The backend refused this device. Open your pairing link again from Settings.'); }
+    return j;
+  } catch (e) { setNet('warn'); throw e; } finally { clearTimeout(tm); }
+}
+function setNet(s) {
+  S.net = s; const d = $('#netdot'); if (!d) return;
+  d.className = 'dot ' + (s === 'on' ? 'on' : s === 'warn' ? 'warn' : '');
+  $('#netlabel').textContent = s === 'on' ? 'Connected' + (S.snap?.got ? ' · ' + ago(S.snap.got) : '') : s === 'warn' ? 'Offline, showing saved data' : 'Not connected';
+}
+
+/* ---------- snapshot ---------- */
+let refreshing = null;
+function mergeSnap(j) {
+  if (!j || !j.ok) return;
+  S.snap = Object.assign(S.snap || {}, j); delete S.snap.voice; S.snap.got = Date.now();
+  LS.set('snap', S.snap);
+}
+function refresh(fresh) {
+  if (!paired()) return Promise.resolve();
+  if (refreshing) return refreshing;
+  refreshing = api('snapshot', fresh ? { fresh: 'true' } : {}).then(j => { mergeSnap(j); render(); checkJobs(); }).catch(() => {}).finally(() => refreshing = null);
+  return refreshing;
+}
+/* Fresh voice link plus the small, fast-changing sections, ready before Omar speaks. */
+async function prefetchVoice() {
+  if (!paired() || prefetchVoice.busy) return; prefetchVoice.busy = true;
+  try {
+    const j = await api('start', { only: 'cal,tasks,mem,jobs,inbox' });
+    if (j.ok) { const v = j.voice; mergeSnap(j); if (v && v.ok) { S.voice = { url: v.signed_url, at: Date.now() }; S.voiceErr = ''; } else S.voiceErr = (v && v.message) || 'Voice is not set up yet.'; if (S.view !== 'talk') render(); }
+  } catch (e) {} finally { prefetchVoice.busy = false; }
+}
+
+/* =====================================================================
+   DATA HELPERS
+   ===================================================================== */
+const sec = n => (S.snap && S.snap[n]) || {};
+const tasksOpen = () => (sec('tasks').open || []);
+const events = () => (sec('cal').events || []).slice().sort((a, b) => a.s - b.s);
+const people = () => (sec('people').people || []);
+const apps = () => sec('apps');
+const jobs = () => (sec('jobs').jobs || []);
+const toks = s => String(s || '').toLowerCase().replace(/[^a-z0-9؀-ۿ@.\- ]/g, ' ').split(/\s+/).filter(Boolean);
+function nameScore(q, name, aliases) {
+  const qn = toks(q); if (!qn.length) return 0;
+  const qs = qn.join(' '); let best = 0;
+  [name].concat(String(aliases || '').split(/[,;]/)).map(n => toks(n).join(' ')).filter(Boolean).forEach(n => {
+    if (n === qs) { best = Math.max(best, 2); return; }
+    const nt = n.split(' ');
+    const all = qn.every(t => nt.some(x => x.indexOf(t) === 0 || (t.length > 2 && x.includes(t))));
+    const rev = n.length >= 3 && nt.every(x => qn.includes(x));
+    if (all || rev) best = Math.max(best, 1);
+  });
+  return best;
+}
+const SRC_ORDER = { saved: 0, contacts: 1, emailed: 2, staff: 3 };
+const SRC_LABEL = { saved: 'your contacts', contacts: 'your phone and Google contacts', emailed: 'people you have emailed', staff: 'Manara staff' };
+function findPeople(q, needPhone) {
+  const hits = [];
+  people().forEach(x => {
+    let sc = nameScore(q, x.n, x.a);
+    if (!sc && /@/.test(q) && x.e === q.toLowerCase()) sc = 2;
+    if (sc && (!needPhone || x.p || (x.s === 'saved' && !x.e))) hits.push({ sc, o: SRC_ORDER[x.s] ?? 4, x });
+  });
+  hits.sort((a, b) => (b.sc - a.sc) || (a.o - b.o));
+  if (!hits.length) return [];
+  return hits.filter(h => h.sc === hits[0].sc && h.o === hits[0].o).slice(0, 4).map(h => h.x);
+}
+function findApplicants(q) {
+  const t = toks(q).filter(w => !['the', 'file', 'application', 'applicant', 'student'].includes(w));
+  if (!t.length) return [];
+  return (apps().index || []).filter(r => { const h = String(r.n || '').toLowerCase(); return t.every(w => h.includes(w)); });
+}
+const daysIn = r => r.since ? Math.max(0, Math.round((Date.parse(cairoISO(new Date()) + 'T12:00:00Z') - Date.parse(r.since + 'T12:00:00Z')) / 864e5)) : null;
+function taskMatch(q) {
+  const words = toks(q).filter(w => w.length > 2), ql = String(q || '').toLowerCase();
+  return tasksOpen().map(t => { const tl = t.t.toLowerCase(); let s = 0; words.forEach(w => tl.includes(w) && s++); if (tl.includes(ql)) s += 3; return { t, s }; })
+    .filter(x => x.s > 0).sort((a, b) => b.s - a.s);
+}
+
+/* =====================================================================
+   VOICE: dynamic variables, client tools, session
+   ===================================================================== */
+function dynVars() {
+  const now = new Date(), hr = +cairoHM(now).slice(0, 2), owner = S.pack?.owner || 'Omar';
+  const dates = []; for (let i = -1; i < 14; i++) { const d = new Date(now.getTime() + i * 864e5); dates.push(`${cairoDay(d)} = ${cairoISO(d)}${i === 0 ? ' (today)' : i === 1 ? ' (tomorrow)' : i === -1 ? ' (yesterday)' : ''}`); }
+  const evs = events().filter(e => e.e > Date.now() && e.s < Date.now() + 7 * 864e5).slice(0, 45)
+    .map(e => `${cairoDay(new Date(e.s))} ${e.all ? 'all day' : cairoHM(new Date(e.s)) + '-' + cairoHM(new Date(e.e))} ${e.t}${e.guests ? ' (' + e.guests + ' guests)' : ''}${e.where ? ' at ' + e.where.slice(0, 40) : ''}`);
+  const t = tasksOpen().slice(0, 18).map(x => x.t + (x.due ? ` (due ${x.due}${x.over ? ', overdue' : ''})` : '') + (x.pri ? ' (priority)' : ''));
+  const a = apps(), F = a.funnel || {}, fc = a.followup_counts || {};
+  const pipe = a.funnel ? `As of the ${a.asof} export, day ${a.day_of_cycle} of the ${a.cycle} cycle: ${F.inquiries} inquiries, ${F.submitted} submitted, ${F.awaiting_phase1_review} awaiting Phase I review, ${F.cleared_for_cat4} cleared for CAT4, ${F.cat4_taken} have taken CAT4, ${fc.submit_ready || 0} ready to submit, ${fc.partial || 0} part-way through the form. Use admissions_numbers for more.` : 'Not loaded.';
+  const ready = jobs().filter(j => j.status === 'done' && !S.seen[j.id]).slice(0, 3).map(j => j.title).join('; ');
+  return {
+    greeting: (hr < 12 ? 'Morning' : hr < 17 ? 'Afternoon' : 'Evening') + ', ' + owner + '.',
+    now_text: `${cairoDay(now, true)} ${fmtParts(now, { year: 'numeric' }).year}, ${cairoHM(now)}`,
+    date_table: dates.join('; '),
+    agenda: evs.join('; ') || 'Nothing booked.',
+    tasks: t.join('; ') || 'No open tasks.',
+    pipeline: pipe,
+    memory_notes: (sec('mem').notes || []).slice(-25).join(' | ') || 'None.',
+    ready: ready ? ready + ' (on screen in Reports)' : 'Nothing.'
+  };
+}
+const J = o => JSON.stringify(o);
+function addAction(a) { a.id = 'a' + Date.now() + Math.random().toString(36).slice(2, 5); a.at = Date.now(); S.actions.unshift(a); S.actions = S.actions.slice(0, 30); paintActions(); return a.id; }
+function setAction(id, status, note) { const a = S.actions.find(x => x.id === id); if (a) { a.status = status; if (note) a.note = note; paintActions(); } }
+function ctx(text) { try { S.conv && S.conv.sendContextualUpdate(text); } catch (e) {} }
+/* Write in the background: Jarvis has already answered; a failure shows a red banner and Jarvis is told. */
+function bg(action, params, label, act) {
+  const id = addAction(Object.assign({ kind: action, label, status: 'pending' }, act || {}));
+  const t0 = performance.now();
+  api(action, params).then(j => {
+    if (j && j.ok !== false) { setAction(id, 'done', j.message); perf('write ' + action, performance.now() - t0); afterWrite(action); }
+    else fail(j && j.message);
+  }).catch(e => fail(e.message));
+  function fail(m) { setAction(id, 'failed', m || 'No answer from the backend.'); banner(`${label}: not saved. ${m || ''}`); ctx(`System note: "${label}" did NOT save (${m || 'no answer'}). Tell Omar in one short sentence.`); }
+  return id;
+}
+function afterWrite(action) {
+  const map = { add_task: 'tasks', complete_task: 'tasks', task_done: 'tasks', task_reopen: 'tasks', create_event: 'cal', set_reminder: 'cal', remember: 'mem', remember_contact: 'people', learned_decide: 'mem' };
+  if (!map[action]) return;
+  clearTimeout(afterWrite[map[action]]);
+  afterWrite[map[action]] = setTimeout(() => api('snapshot', { only: map[action] }).then(j => { mergeSnap(j); if (S.view !== 'talk') render(); }).catch(() => {}), 1500);
+}
+
+const TOOLS = {
+  async find_person({ name }) {
+    const t0 = performance.now(), hit = findPeople(name);
+    if (hit.length) {
+      perf('tool find_person (local)', performance.now() - t0);
+      const src = hit[0].s;
+      return J({ found: hit.length, source: SRC_LABEL[src], confirm: src === 'emailed', people: hit.map(x => ({ name: x.n, email: x.e || '', phone: x.p ? '+' + x.p : '', title: x.ti || '' })),
+        note: hit.length > 1 ? 'More than one match: ask Omar which one.' : (src === 'emailed' ? 'Found in old emails: read the address back to Omar before using it.' : '') });
+    }
+    const j = await api('find_person', { name }).catch(() => null);
+    perf('tool find_person (mail)', performance.now() - t0);
+    if (j && j.ok && j.items && j.items.length) return J({ found: j.items.length, source: j.source, confirm: true, people: j.items, note: 'Found in old emails: read the address back to Omar before using it.' });
+    return J({ found: 0, note: `No email or phone for ${name}. Ask Omar for it; never guess.` });
+  },
+  async find_applicant({ name }) {
+    const a = apps(); if (!a.index) return J({ found: 0, note: 'The applicant list is not loaded.' });
+    const hits = findApplicants(name);
+    if (!hits.length) return J({ found: 0, note: `No applicant called ${name} in the ${a.asof} export.` });
+    if (hits.length > 4) return J({ found: hits.length, note: 'Too many matches: ask for the first and last name.' });
+    hits.slice(0, 1).forEach(r => openApplicant(r, true));
+    return J({ export_date: a.asof, found: hits.length, applicants: hits.map(r => ({ name: r.n, grade: r.g, type: r.ty === 'RE' ? 're-enrolment' : r.ty === 'FA' ? 'Fanar' : 'new applicant', stage: r.w, counselor: r.o, days_in_this_stage: daysIn(r), submitted: r.sub, interviewed: r.int })), rule: 'Never read scores or give reasons for a decision.' });
+  },
+  async admissions_numbers({ topic }) {
+    const a = apps(); if (!a.funnel) return J({ note: 'Pipeline numbers are not loaded.' });
+    const base = { export_date: a.asof, cycle: a.cycle, day_of_cycle: a.day_of_cycle, rules: 'Same rules as the Pulse; new applicants only.' };
+    if (topic === 'followups') return J(Object.assign(base, { followups: a.followup_counts, stalled_2_weeks: (a.followups || []).filter(f => f.stalled).length }));
+    if (topic === 'grades') return J(Object.assign(base, { by_grade: a.grades }));
+    if (topic === 'counselors') return J(Object.assign(base, { by_counselor: a.owners, followups_by_counselor: (a.followups || []).reduce((m, f) => (m[f.o] = (m[f.o] || 0) + 1, m), {}) }));
+    if (topic === 'pace') return J(Object.assign(base, { now: a.pace_now, note: 'For the comparison with past cycles, start the season_compare job.' }));
+    return J(Object.assign(base, { funnel: a.funnel, rates: a.rates, re_enrolment: a.re_enrollment }));
+  },
+  async add_task(p) {
+    const title = String(p.title || '').trim(); if (!title) return 'I need the task text.';
+    if (tasksOpen().some(t => t.t.toLowerCase() === title.toLowerCase())) return 'Already on the list.';
+    sec('tasks').open = [{ id: 'tmp' + Date.now(), t: title, due: p.due || '', pri: !!p.priority, area: p.area || '', note: p.note || '' }].concat(tasksOpen());
+    bg('add_task', { title, due: p.due || '', priority: p.priority ? 'yes' : '', area: p.area || '', note: p.note || '' }, 'Task: ' + title, { icon: 'task' });
+    if (S.view === 'tasks') render();
+    return 'Added.';
+  },
+  async complete_task({ match }) {
+    const m = taskMatch(match);
+    if (!m.length) return `No open task matches "${match}".`;
+    if (m.length > 1 && m[0].s === m[1].s) return 'Which one? ' + m.slice(0, 3).map((x, i) => `${i + 1}: ${x.t.t}`).join('. ');
+    const t = m[0].t; sec('tasks').open = tasksOpen().filter(x => x !== t);
+    if (/^tmp/.test(t.id)) bg('complete_task', { match: t.t }, 'Done: ' + t.t, { icon: 'check' }); else bg('task_done', { id: t.id }, 'Done: ' + t.t, { icon: 'check' });
+    return 'Done: ' + t.t;
+  },
+  async create_event(p) {
+    const s = cairoToMs(p.start); if (isNaN(s)) return 'I could not read that time. Use YYYY-MM-DD HH:mm.';
+    if (s < Date.now() - 5 * 60000) return 'That time has passed. Which day did you mean?';
+    const mins = Math.max(5, Math.min(480, +p.minutes || 30)), e = s + mins * 60000;
+    if (!p.force) { const clash = events().filter(x => !x.all && x.s < e && x.e > s); if (clash.length) return `Clash with ${clash.slice(0, 2).map(x => x.t + ' at ' + cairoHM(new Date(x.s))).join(' and ')}. Ask Omar; call again with force true only if he says book it anyway.`; }
+    const guests = String(p.guests || '').split(/[,;\s]+/).filter(g => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(g));
+    if (p.guests && !guests.length) return 'Guests need email addresses from find_person.';
+    sec('cal').events = events().concat([{ id: 'tmp' + s, t: p.title, s, e, all: false, where: p.location || '', guests: guests.length }]);
+    bg('create_event', { title: p.title, start: p.start, minutes: mins, guests: guests.join(','), location: p.location || '', force: p.force ? 'true' : '' }, `Meeting: ${p.title}, ${cairoDay(new Date(s))} ${cairoHM(new Date(s))}`, { icon: 'cal' });
+    return guests.length ? 'Booked, invitations going out.' : 'Booked.';
+  },
+  async set_reminder(p) {
+    bg('set_reminder', { title: p.title, day: p.day || '', time: p.time || '', in_minutes: p.in_minutes || '' }, 'Reminder: ' + p.title, { icon: 'bell' });
+    return 'Reminder set.';
+  },
+  async email({ query }) {
+    if (!query) { const th = (sec('inbox').threads || []).slice(0, 6); return th.length ? J({ inbox: th.map(t => ({ from: t.from, subject: t.subject, when: t.date, thread_id: t.thread_id })) }) : 'Nothing urgent in the inbox.'; }
+    const t0 = performance.now(); const j = await api('find_email', { query }, { timeout: 24000 }).catch(e => ({ ok: false, message: e.message }));
+    perf('tool email search', performance.now() - t0);
+    if (!j.ok) return j.message || 'Nothing found.';
+    return J({ emails: (j.threads || []).map(t => ({ from: t.from, subject: t.subject, when: t.date, preview: t.preview, thread_id: t.thread_id })) });
+  },
+  async save_draft(p) {
+    const body = String(p.body || '').trim(); if (!body) return 'I need the email text.';
+    const card = { icon: 'mail', mail: { to: p.to || '(reply in thread)', subject: p.subject || '(reply)', body } };
+    if (p.thread_id) bg('draft_reply', { thread_id: p.thread_id, body }, 'Draft reply saved', card);
+    else {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(p.to || ''))) return 'I need a full email address from find_person.';
+      if (!p.subject) return 'I need a subject.';
+      bg('draft_email', { to: p.to, cc: p.cc || '', subject: p.subject, body }, 'Draft to ' + p.to, card);
+    }
+    S.drafts.unshift({ at: Date.now(), to: p.to || 'reply', subject: p.subject || 'reply', body }); S.drafts = S.drafts.slice(0, 30); LS.set('drafts', S.drafts);
+    return 'Saved in drafts, not sent.';
+  },
+  async whatsapp({ to, message }) {
+    const hit = findPeople(to, true);
+    if (!hit.length) return `I have no number for ${to}. Ask Omar to add it, or for the number.`;
+    if (hit.length > 1) return 'Which one: ' + hit.map(x => x.n).join(', or ') + '?';
+    const x = hit[0], link = x.p ? `https://wa.me/${x.p}?text=${encodeURIComponent(message)}` : `https://wa.me/?text=${encodeURIComponent(message)}`;
+    const item = { at: Date.now(), name: x.n, phone: x.p || '', text: message, link };
+    S.outbox.unshift(item); S.outbox = S.outbox.slice(0, 20); LS.set('outbox', S.outbox);
+    addAction({ kind: 'whatsapp', icon: 'wa', status: 'ready', label: 'WhatsApp to ' + x.n, wa: item });
+    return x.p ? `On Omar's screen, ready for ${x.n}. He taps to send.` : `On Omar's screen; he picks the ${x.n} chat and taps send.`;
+  },
+  async remember({ note }) { bg('remember', { note }, 'Noted: ' + note, { icon: 'mem' }); (sec('mem').notes = sec('mem').notes || []).push(note); return 'Noted.'; },
+  async save_contact(p) { bg('remember_contact', { name: p.name, email: p.email || '', phone: p.phone || '' }, 'Contact saved: ' + p.name, { icon: 'person' }); return 'Saved.'; },
+  async start_job({ kind, details }) { runJob(kind, details || ''); return 'Started. It will appear on screen.'; },
+  async pulse_update({ applicant, kind, text }) {
+    const hits = findApplicants(applicant);
+    if (hits.length > 1) return `${hits.length} applicants match ${applicant}: ${hits.slice(0, 4).map(r => r.n).join(', ')}. Which one?`;
+    const r = hits[0];
+    bg('pulse_request', { app_id: r ? r.id : '', name: r ? r.n : applicant, kind, text: text || '' }, `Pulse: ${kind} for ${r ? r.n : applicant}`, { icon: 'pulse' });
+    return 'Sent to the Pulse. It shows after the next update.';
+  },
+  async show({ screen }) { setView(screen); return 'On screen.'; }
+};
+
+/* ---------- jobs ---------- */
+async function runJob(kind, details) {
+  const id = addAction({ kind: 'job', icon: 'job', status: 'pending', label: ({ weekly_report: 'Weekly report for Todd', season_compare: 'Season comparison', followup_list: 'Follow-up list' })[kind] || 'Analysis' });
+  try {
+    const r = await api('start_job', { kind, details });
+    if (!r.ok) throw new Error(r.message);
+    if (r.runner !== 'backend') { setAction(id, 'done', 'Queued for Claude. It runs on its next check.'); return; }
+    const t0 = performance.now(), rr = await api('run_job', { id: r.id }, { timeout: 330000 });
+    perf('job ' + kind, performance.now() - t0);
+    if (rr.status === 'done' && rr.card) {
+      setAction(id, 'done', rr.card.title);
+      const js = sec('jobs'); js.jobs = [{ id: r.id, kind, status: 'done', title: rr.card.title, url: rr.card.url, card: rr.card, finished: new Date().toISOString() }].concat(js.jobs || []);
+      notify(rr.card.title + ' is ready', (rr.card.lines || [])[0] || '');
+      if (S.conv) { ctx(`System note: the ${rr.card.title} is ready on screen. Headline: ${(rr.card.lines || [])[0] || ''} ${(rr.card.kpis || []).map(k => k.l + ' ' + k.v).join(', ')}. Offer the headline in one sentence when there is a pause.`); S.seen[r.id] = 1; LS.set('seenJobs', S.seen); }
+      if (S.view === 'reports' || S.view === 'today') render();
+    } else if (rr.status === 'queued') setAction(id, 'done', rr.message || 'Passed to Claude.');
+    else throw new Error(rr.message || 'The job did not finish.');
+  } catch (e) { setAction(id, 'failed', e.message); banner('Job failed: ' + e.message); ctx('System note: the job failed (' + e.message + '). Tell Omar briefly.'); }
+}
+function checkJobs() { const n = jobs().filter(j => j.status === 'done' && !S.seen[j.id]).length; paintNav(); return n; }
+async function notify(title, body) {
+  toast(title);
+  try { if ('Notification' in window && Notification.permission === 'granted' && document.hidden) { const reg = await navigator.serviceWorker?.getRegistration(); reg ? reg.showNotification(title, { body, icon: 'icons/icon.svg', tag: 'jarvis' }) : new Notification(title, { body }); } } catch (e) {}
+}
+
+/* ---------- the session ---------- */
+let SDK = null;
+async function loadSDK() { if (!SDK) SDK = await import(SDK_URL); return SDK; }
+async function startTalk(cmd) {
+  if (S.conv || S.mode === 'connecting') return;
+  if (!paired()) { setView('settings'); return; }
+  S.mode = 'connecting'; paintTalk(); stopWake();
+  const t0 = performance.now(); S.session = { t0, cmd: cmd || '', first: 0 };
+  try {
+    if (!S.voice || Date.now() - S.voice.at > 9 * 60000) await prefetchVoice();
+    if (!S.voice) throw new Error(S.voiceErr || 'No voice link from the backend.');
+    const url = S.voice.url; S.voice = null;
+    const { Conversation } = await loadSDK();
+    const opts = {
+      signedUrl: url, connectionType: 'websocket', dynamicVariables: dynVars(), clientTools: TOOLS, useWakeLock: true,
+      onConnect: () => { S.session.connected = performance.now() - t0; perf('voice connect', S.session.connected); if (cmd) { try { S.conv.sendUserMessage(cmd); addMsg('user', cmd); S.session.sent = performance.now(); } catch (e) {} } },
+      onDisconnect: () => endTalk(),
+      onError: (m) => { banner('Voice: ' + m); },
+      onModeChange: ({ mode }) => {
+        S.mode = mode === 'speaking' ? 'speaking' : 'listening';
+        if (mode === 'speaking' && !S.session.first) { S.session.first = performance.now() - t0; perf('first words after wake', S.session.first, cmd ? 'with command' : 'greeting'); }
+        if (mode === 'speaking' && S.session.userEnd) { perf('reply started', performance.now() - S.session.userEnd); S.session.userEnd = 0; }
+        paintTalk();
+      },
+      onMessage: (m) => { const who = (m.role || m.source) === 'user' ? 'user' : 'ai'; addMsg(who, m.message); if (who === 'user') S.session.userEnd = performance.now(); },
+      onAgentToolResponse: (r) => { if (r && r.tool_name) perf('tool ' + r.tool_name + ' (agent)', 0, r.is_error ? 'error' : ''); }
+    };
+    if (cmd) opts.overrides = { agent: { firstMessage: '' } };
+    S.conv = await Conversation.startSession(opts);
+    S.mode = 'listening'; paintTalk(); volLoop();
+    setTimeout(prefetchVoice, 1500); // the next link, so the next wake is instant
+  } catch (e) { S.conv = null; S.mode = 'idle'; paintTalk(); banner(e.message || String(e)); startWake(); }
+}
+async function stopTalk() { try { await S.conv?.endSession(); } catch (e) {} endTalk(); }
+function endTalk() {
+  if (!S.conv && S.mode === 'idle') return;
+  S.conv = null; S.mode = 'idle'; paintTalk();
+  proposeLearned();
+  jobs().forEach(j => { if (j.status === 'done') S.seen[j.id] = 1; }); LS.set('seenJobs', S.seen);
+  setTimeout(() => { startWake(); prefetchVoice(); }, 600);
+}
+function addMsg(who, text) { if (!text) return; S.transcript.push({ who, text, at: Date.now() }); S.transcript = S.transcript.slice(-60); paintTranscript(); }
+/* After a call: sentences where Omar stated a preference become notes to approve on the Memory screen. */
+function proposeLearned() {
+  const rec = S.transcript.filter(m => m.who === 'user' && m.at > (S.session?.t0 ? Date.now() - 3600000 : 0));
+  const notes = rec.map(m => m.text).filter(t => /\b(from now on|always|never|i prefer|i like it when|don't ever|please remember|keep in mind|in future)\b/i.test(t) && !/\bremember (this|that)\b.*\?$/i.test(t)).slice(0, 3);
+  if (notes.length) api('learned_add', { notes, source: 'voice ' + cairoISO(new Date()) }).then(() => refresh()).catch(() => {});
+}
+function volLoop() {
+  const orb = $('#orb'); if (!S.conv) { if (orb) { orb.style.setProperty('--in', 0); orb.style.setProperty('--out', 0); } return; }
+  try {
+    const i = Math.min(1, S.conv.getInputVolume() * 2.2), o = Math.min(1, S.conv.getOutputVolume() * 1.8);
+    if (orb) { orb.style.setProperty('--in', i.toFixed(3)); orb.style.setProperty('--out', o.toFixed(3)); orb.querySelectorAll('.bars i').forEach((b, k) => b.style.setProperty('--h', Math.round((k === 1 ? 46 : k === 2 ? 30 : 22) * Math.max(i, o) + (k === 1 ? 6 : 0)))); }
+  } catch (e) {}
+  requestAnimationFrame(volLoop);
+}
+
+/* =====================================================================
+   WAKE WORD: "Jarvis" or "Hey Jarvis"
+   Engine 1: Porcupine (on-device, needs a Picovoice key in Settings).
+   Engine 2: the browser's speech recognition (Chrome, Edge, Safari), as a fallback.
+   Works while the app is open on screen; a web app cannot listen when the phone is locked.
+   ===================================================================== */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, pv = null, wakeLock = null;
+function wakeSupported() { return !!(S.settings.pvKey || SR); }
+async function startWake() {
+  if (!S.settings.wake || S.conv || document.hidden || !paired() || $('#lockHost').innerHTML) return;
+  if (S.settings.pvKey && await startPorcupine()) { S.wakeOn = 'pv'; keepAwake(true); paintTalk(); return; }
+  if (!SR || rec) return;
+  try {
+    rec = new SR(); rec.continuous = true; rec.interimResults = true; rec.lang = 'en-US'; rec.maxAlternatives = 1;
+    let fired = 0;
+    rec.onresult = (e) => {
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        const t = e.results[i][0].transcript, m = t.match(/\b(?:hey|hi|ok|okay|ya|yalla)?[\s,]*j[ae]r?vi[sz]\b[\s,.!?]*(.*)$/i);
+        if (!m || fired) continue;
+        const rest = (m[1] || '').trim();
+        if (e.results[i].isFinal || rest.split(/\s+/).length >= 6) { fired = 1; perf('wake word heard', 0, 'speech recognition'); stopWake(); startTalk(rest.split(/\s+/).length >= 2 ? rest : ''); return; }
+        clearTimeout(rec._t); rec._t = setTimeout(() => { if (!fired) { fired = 1; stopWake(); startTalk(''); } }, 1300);
+      }
+    };
+    rec.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { S.settings.wake = false; saveSettings(); banner('Microphone blocked for the wake word. Allow the microphone, then switch the wake word on in Settings.'); } };
+    rec.onend = () => { rec = null; if (S.settings.wake && !S.conv && S.mode !== 'connecting' && !document.hidden) setTimeout(startWake, 400); };
+    rec.start(); S.wakeOn = 'sr'; keepAwake(true); paintTalk();
+  } catch (e) { rec = null; }
+}
+function stopWake() {
+  try { rec && (rec.onend = null, rec.abort()); } catch (e) {} rec = null;
+  try { pv && pv.stop(); } catch (e) {}
+  S.wakeOn = false; keepAwake(false);
+}
+async function startPorcupine() {
+  try {
+    if (!pv) {
+      const [{ PorcupineWorker, BuiltInKeyword }, { WebVoiceProcessor }] = await Promise.all([
+        import('https://cdn.jsdelivr.net/npm/@picovoice/porcupine-web@4.0.1/+esm'), import('https://cdn.jsdelivr.net/npm/@picovoice/web-voice-processor@4.0.10/+esm')]);
+      const worker = await PorcupineWorker.create(S.settings.pvKey, [BuiltInKeyword.Jarvis], () => { perf('wake word heard', 0, 'porcupine'); stopWake(); startTalk(''); },
+        { publicPath: 'https://cdn.jsdelivr.net/gh/Picovoice/porcupine@v4.0/lib/common/porcupine_params.pv', forceWrite: false });
+      pv = { worker, start: () => WebVoiceProcessor.subscribe(worker), stop: () => WebVoiceProcessor.unsubscribe(worker) };
+    }
+    await pv.start(); return true;
+  } catch (e) { pv = null; toast('Porcupine wake word failed, using the browser instead'); return false; }
+}
+async function keepAwake(on) {
+  try {
+    if (on && S.settings.keepAwake && 'wakeLock' in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => wakeLock = null); }
+    if (!on && wakeLock && !S.conv) { await wakeLock.release(); wakeLock = null; }
+  } catch (e) {}
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { if (!S.conv) stopWake(); }
+  else { checkLock(); refresh(); if (!S.voice || Date.now() - S.voice.at > 8 * 60000) prefetchVoice(); startWake(); }
+});
+
+/* =====================================================================
+   ACCESS CODE (this device). The key and data stay on this device; the code keeps others out of the screen.
+   ===================================================================== */
+async function sha(s) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('j2:' + s)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+function checkLock() {
+  if (!paired()) return false;
+  const code = LS.get('code'), last = LS.get('unlockedAt', 0);
+  if (!code) { showLock('set'); return true; }
+  if (Date.now() - last > S.settings.lockHours * 3600000) { showLock('enter'); return true; }
+  return false;
+}
+function showLock(mode) {
+  stopWake();
+  const h = $('#lockHost');
+  h.innerHTML = `<div class="lock"><div class="box"><div class="cols"><i></i><i></i><i></i><i></i></div>
+    <h2>${mode === 'set' ? 'Set your access code' : 'Jarvis is locked'}</h2>
+    <p>${mode === 'set' ? 'Choose 4 to 8 digits. You will need it on this device every ' + S.settings.lockHours + ' hours.' : 'Enter your access code.'}</p>
+    <input id="lc" type="password" inputmode="numeric" autocomplete="off" maxlength="8" autofocus>
+    ${mode === 'set' ? '<input id="lc2" type="password" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="again" style="margin-top:10px">' : ''}
+    <div class="err" id="lerr"></div><button class="pill" id="lgo">${mode === 'set' ? 'Save code' : 'Unlock'}</button></div></div>`;
+  const go = async () => {
+    const v = $('#lc').value.trim();
+    if (!/^\d{4,8}$/.test(v)) { $('#lerr').textContent = 'Use 4 to 8 digits.'; return; }
+    if (mode === 'set') { if (v !== $('#lc2').value.trim()) { $('#lerr').textContent = 'The two codes are different.'; return; } LS.set('code', await sha(v)); }
+    else if (await sha(v) !== LS.get('code')) { $('#lerr').textContent = 'Not that one.'; $('#lc').value = ''; return; }
+    LS.set('unlockedAt', Date.now()); h.innerHTML = ''; render(); startWake();
+  };
+  $('#lgo').onclick = go; h.querySelectorAll('input').forEach(i => i.onkeydown = e => e.key === 'Enter' && go());
+  setTimeout(() => $('#lc')?.focus(), 50);
+}
+setInterval(() => { if (!$('#lockHost').innerHTML && !S.conv && document.visibilityState === 'visible') LS.set('unlockedAt', Math.max(LS.get('unlockedAt', 0), Date.now() - 1000)); }, 60000);
+
+/* =====================================================================
+   RENDERING
+   ===================================================================== */
+const ICON = {
+  today: '<path d="M3 10.5 12 4l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  talk: '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  tasks: '<path d="M9 6h11M9 12h11M9 18h11"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/>',
+  calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+  inbox: '<path d="M3 13h5l1.5 3h5l1.5-3h5"/><path d="M5 5h14l2 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-6z"/>',
+  applicants: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M21.5 20a6.5 6.5 0 0 0-4-6"/>',
+  reports: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  memory: '<path d="M12 3a7 7 0 0 0-4 12.7V19h8v-3.3A7 7 0 0 0 12 3z"/><path d="M9 22h6"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+  more: '<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>',
+  task: '<path d="m5 12 4 4 10-10"/>', check: '<path d="m5 12 4 4 10-10"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/>',
+  bell: '<path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10 21h4"/>', mail: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+  wa: '<path d="M4 20l1.3-3.9A8 8 0 1 1 8 19.1z"/>', mem: '<path d="M12 3a7 7 0 0 0-4 12.7V19h8v-3.3A7 7 0 0 0 12 3z"/>', person: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  job: '<path d="M4 20V10M10 20V4M16 20v-7"/>', pulse: '<path d="M3 12h4l3-8 4 16 3-8h4"/>'
+};
+const svg = (k, cls = '') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${ICON[k] || ''}</svg>`;
+const VIEWS = { today: 'Today', talk: 'Talk', tasks: 'Tasks', calendar: 'Calendar', inbox: 'Inbox & drafts', applicants: 'Applicants', reports: 'Reports', memory: 'Memory', settings: 'Settings' };
+function counts() {
+  const a = apps();
+  return { tasks: tasksOpen().filter(t => t.over || t.pri).length || tasksOpen().length, inbox: (sec('inbox').threads || []).length, applicants: (a.followups || []).length,
+    reports: jobs().filter(j => j.status === 'done' && !S.seen[j.id]).length, memory: (sec('mem').learned || []).length };
+}
+function paintNav() {
+  const c = counts(), hot = { reports: 1, memory: 1 };
+  const groups = [['Now', ['today', 'talk']], ['Work', ['tasks', 'calendar', 'inbox', 'applicants']], ['Output', ['reports', 'memory']], ['', ['settings']]];
+  $('#nav').innerHTML = groups.map(([g, items]) => (g ? `<div class="nav-g">${g}</div>` : '<div style="height:10px"></div>') + items.map(v =>
+    `<a data-v="${v}" class="${S.view === v ? 'on' : ''}">${svg(v)}<span>${VIEWS[v]}</span>${c[v] ? `<span class="badge ${hot[v] ? 'hot' : ''}">${c[v]}</span>` : ''}</a>`).join('')).join('');
+  const tabs = [['today', 'Today'], ['tasks', 'Tasks'], ['talk', ''], ['applicants', 'Applicants'], ['more', 'More']];
+  $('#tabbar').innerHTML = tabs.map(([v, l]) => v === 'talk'
+    ? `<a data-v="talk" class="mic ${S.conv ? 'live' : ''}"><span class="b">${svg('talk')}</span></a>`
+    : `<a data-v="${v}" class="${S.view === v || (v === 'more' && ['calendar', 'inbox', 'reports', 'memory', 'settings'].includes(S.view)) ? 'on' : ''}">${svg(v)}<span>${l}</span>${v === 'more' && (c.reports + c.memory) ? `<span class="tb">${c.reports + c.memory}</span>` : ''}</a>`).join('');
+}
+function setView(v) {
+  if (v === 'more') { openMore(); return; }
+  if (!VIEWS[v]) return;
+  S.view = v; LS.set('view', v); closeOverlay(); render(); window.scrollTo(0, 0);
+}
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-v]'); if (a && (a.closest('#nav') || a.closest('#tabbar') || a.closest('.sheet'))) { e.preventDefault(); if (a.dataset.v === 'talk' && S.view === 'talk' && innerWidth <= 900) { S.conv ? stopTalk() : startTalk(''); return; } setView(a.dataset.v); }
+});
+function openMore() {
+  const c = counts();
+  $('#overlay').innerHTML = `<div class="scrim" id="scrim"></div><div class="sheet"><div class="grab"></div>${['calendar', 'inbox', 'reports', 'memory', 'settings'].map(v => `<a data-v="${v}">${svg(v)}<span>${VIEWS[v]}</span>${c[v] ? `<span class="chip ${v === 'reports' || v === 'memory' ? 'bad' : 'plain'}" style="margin-left:auto">${c[v]}</span>` : ''}</a>`).join('')}</div>`;
+  $('#scrim').onclick = closeOverlay;
+}
+function closeOverlay() { $('#overlay').innerHTML = ''; }
+
+function render() {
+  paintNav(); setNet(S.net);
+  $('#title').textContent = VIEWS[S.view] || '';
+  if (!paired()) { $('#view').innerHTML = viewSetup(); bindSetup(); return; }
+  if (S.view === 'talk') { if (!$('#orb')) $('#view').innerHTML = viewTalk(); bindTalk(); paintTalk(); paintTranscript(); paintActions(); return; }
+  const fn = { today: viewToday, tasks: viewTasks, calendar: viewCalendar, inbox: viewInbox, applicants: viewApplicants, reports: viewReports, memory: viewMemory, settings: viewSettings }[S.view] || viewToday;
+  $('#view').innerHTML = fn();
+  ({ tasks: bindTasks, applicants: bindApplicants, memory: bindMemory, settings: bindSettings, reports: bindReports, today: bindToday, inbox: bindInbox })[S.view]?.();
+}
+
+/* ---------- setup (not yet connected) ---------- */
+function viewSetup() {
+  const pu = S.pack?.pair_url;
+  return `<div class="panel" style="max-width:620px">
+    <h3>Connect this device</h3>
+    <p>Jarvis needs a one-time link from your backend. It carries the access key inside it, so the key is never typed or shown.</p>
+    <ol style="line-height:1.9;padding-left:18px">
+      <li>On this phone or computer, sign in to your <b>Manara Google account</b> in the browser.</li>
+      <li>${pu ? `Tap <b>Open my pairing link</b> below.` : 'Open your pairing link (from your setup message).'}</li>
+      <li>Tap <b>Connect Jarvis</b> on the page that opens. You come straight back here.</li>
+    </ol>
+    ${pu ? `<a class="pill primary" href="${esc(pu)}?pair=1">Open my pairing link</a>` : ''}
+    <p class="src">Version ${VERSION} · pack ${esc(S.pack?.id || PACK_ID)}</p></div>`;
+}
+function bindSetup() {}
+
+/* ---------- Today ---------- */
+function kpiTiles() {
+  const a = apps(), F = a.funnel || {}, fc = a.followup_counts || {}, ch = a.week_change || {};
+  return (S.pack?.kpis || []).map(([k, l]) => {
+    const v = k.startsWith('fu:') ? (fc[k.slice(3)] || 0) : F[k];
+    return `<div class="kpi"><b class="num">${v ?? '–'}</b><span>${esc(l)}</span><small>${k === 'inquiries' && a.pace_now ? 'day ' + a.day_of_cycle + ' of ' + esc(a.cycle) : k === 'submitted' && F.inquiries ? (a.rates?.submit_rate ?? '–') + '% of inquiries' : k.startsWith('fu:') ? 'at 90%+, not submitted' : k === 'awaiting_phase1_review' ? 'our action' : k === 'cat4_taken' ? (F.cat4_pass ?? 0) + ' passed' : ''}</small></div>`;
+  }).join('');
+}
+function eventRows(list, empty) {
+  return list.length ? list.map(e => `<div class="row"><span class="when">${e.all ? 'all day' : cairoHM(new Date(e.s))}</span><div class="t"><div>${esc(e.t)}</div><small>${e.all ? '' : cairoHM(new Date(e.e))}${e.where ? ' · ' + esc(e.where) : ''}${e.guests ? ' · ' + plural(e.guests, 'guest') : ''}</small></div>${e.s <= Date.now() && e.e > Date.now() ? '<span class="chip ok">now</span>' : ''}</div>`).join('') : `<div class="empty">${empty}</div>`;
+}
+function taskRow(t) {
+  return `<div class="row"><button class="check" data-done="${esc(t.id)}" aria-label="Done"></button><div class="t"><div${dirAttr(t.t)}>${esc(t.t)}</div>${t.note ? `<small${dirAttr(t.note)}>${esc(t.note)}</small>` : ''}</div>
+    ${t.over ? '<span class="chip bad">overdue</span>' : t.due ? `<span class="chip plain">${esc(relDay(t.due))}</span>` : ''}${t.pri ? '<span class="chip watch">priority</span>' : ''}</div>`;
+}
+function jobCard(j, compact) {
+  const c = j.card || {};
+  return `<div class="panel" style="margin-bottom:12px"><h3>${svg('job')}${esc(c.title || j.title || j.kind)}<span class="r">${!S.seen[j.id] && j.status === 'done' ? '<span class="chip bad">new</span> ' : ''}<span class="chip ${j.status === 'done' ? 'ok' : j.status === 'failed' ? 'bad' : 'info'}">${esc(j.status)}</span></span></h3>
+    ${(c.kpis || []).length ? `<div class="card-k">${c.kpis.map(k => `<div><b class="num">${esc(k.v)}</b><span>${esc(k.l)}${k.s ? ' · ' + esc(k.s) : ''}</span></div>`).join('')}</div>` : ''}
+    ${!compact && c.chart ? `<div class="chart">${lineChart(c.chart)}</div>` : ''}
+    ${(c.lines || []).slice(0, compact ? 2 : 9).map(l => `<div style="margin:4px 0">${esc(l)}</div>`).join('')}
+    ${j.status !== 'done' ? `<div class="muted">${j.runner === 'claude' ? 'Queued for Claude. It runs on its next check.' : esc(j.error || 'Working on it…')}</div>` : ''}
+    <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">${c.url || j.url ? `<a class="pill sm" target="_blank" rel="noopener" href="${esc(c.url || j.url)}">Open full report</a>` : ''}${c.source ? `<span class="src">${esc(c.source)}</span>` : ''}</div></div>`;
+}
+function miniFunnel(noLink) {
+  const a = apps(), F = a.funnel || {}, fc = a.followup_counts || {}, max = Math.max(1, F.inquiries || 0);
+  const rows = [['Inquiries', F.inquiries], ['Ready to submit', fc.submit_ready || 0], ['Submitted', F.submitted], ['Awaiting Phase I', F.awaiting_phase1_review], ['Cleared for CAT4', F.cleared_for_cat4], ['CAT4 taken', F.cat4_taken], ['File completion', F.file_completion], ['Admitted', F.admitted], ['Enrolled', F.enrolled_or_onboarding]];
+  return rows.map(([l, v], i) => `<div style="display:grid;grid-template-columns:130px 1fr 44px;gap:10px;align-items:center;margin:6px 0;font-size:13px"><span class="muted">${l}</span><span style="height:10px;border-radius:5px;background:var(--soft);overflow:hidden"><i style="display:block;height:100%;width:${Math.max(v ? 2 : 0, Math.round(100 * (v || 0) / max))}%;background:${i % 2 ? 'var(--brand2)' : 'var(--brand)'};border-radius:5px"></i></span><b class="num" style="text-align:right">${v ?? '–'}</b></div>`).join('') + (noLink ? '' : `<a class="pill sm" data-v2="applicants" style="margin-top:8px">Full pipeline</a>`);
+}
+function viewToday() {
+  const now = Date.now(), todayIso = cairoISO(new Date());
+  const upcoming = events().filter(e => e.e > now && cairoISO(new Date(e.s)) <= cairoISO(new Date(now + 864e5)));
+  const top = tasksOpen().slice(0, 3), inbox = (sec('inbox').threads || []).slice(0, 5);
+  const ready = jobs().filter(j => j.status === 'done').slice(0, 2), learned = sec('mem').learned || [];
+  const a = apps();
+  return `${a.funnel ? `<div class="kpis">${kpiTiles()}</div>` : ''}
+  <div class="grid2">
+    <div class="panel"><h3>${svg('calendar')}Next meetings<span class="r muted">today & tomorrow</span></h3>${eventRows(upcoming.slice(0, 7), 'Nothing booked. Enjoy it.')}</div>
+    <div class="panel"><h3>${svg('tasks')}Top tasks<span class="r"><a class="pill sm" data-v2="tasks">All ${tasksOpen().length}</a></span></h3>${top.length ? top.map(taskRow).join('') : '<div class="empty">No open tasks.</div>'}</div>
+    <div class="panel"><h3>${svg('inbox')}Needs a reply<span class="r muted">unread or important, 3 days</span></h3>${inbox.length ? inbox.map(t => `<div class="row"><div class="t"><div>${esc(t.from)}</div><small${dirAttr(t.subject)}>${esc(t.subject)}</small></div><span class="chip ${t.unread ? 'info' : 'plain'}">${esc(t.date)}</span></div>`).join('') : '<div class="empty">Nothing waiting.</div>'}</div>
+    <div class="panel"><h3>${svg('applicants')}Pipeline<span class="r muted">${a.asof ? 'export ' + esc(a.asof) : ''}</span></h3>${a.funnel ? miniFunnel() + `<div class="src">${esc(S.pack?.rules_note || '')} Source: ${esc(a.source_file || '')}.</div>` : `<div class="empty">${esc(a.message || a.error || 'Not loaded yet.')}</div>`}</div>
+  </div>
+  ${learned.length ? `<div class="panel" style="margin-top:14px"><h3>${svg('memory')}Jarvis learned something<span class="r"><a class="pill sm" data-v2="memory">Review ${learned.length}</a></span></h3>${learned.slice(0, 2).map(l => `<div class="row"><div class="t"><div>${esc(l.note)}</div></div></div>`).join('')}</div>` : ''}
+  ${ready.length ? `<div style="margin-top:14px">${ready.map(j => jobCard(j, true)).join('')}</div>` : ''}
+  <p class="src">${S.snap?.got ? 'Updated ' + ago(S.snap.got) + '.' : ''} ${todayIso}</p>`;
+}
+function bindToday() { bindTaskChecks(); document.querySelectorAll('[data-v2]').forEach(b => b.onclick = () => setView(b.dataset.v2)); }
+
+/* ---------- Talk ---------- */
+function viewTalk() {
+  return `<div class="talk">
+    <div class="stage">
+      <button class="orb" id="orb" data-mode="idle" aria-label="Start or stop talking"><span class="ring r2"></span><span class="ring"></span><span class="core"></span><span class="bars"><i></i><i></i><i></i><i></i></span></button>
+      <div class="state" id="state"></div>
+      <div class="typebar"><input class="field" id="typein" placeholder="Or type to Jarvis" autocomplete="off"><button class="pill" id="typego">Send</button></div>
+    </div>
+    <div>
+      <div class="panel" style="margin-bottom:14px"><h3>${svg('task')}What I just did</h3><div class="acts" id="acts"></div></div>
+      <div class="panel"><h3>${svg('talk')}Transcript<span class="r"><button class="pill sm" id="clr">Clear</button></span></h3><div class="transcript" id="tx"></div></div>
+    </div></div>`;
+}
+function bindTalk() {
+  $('#orb').onclick = () => S.conv ? stopTalk() : startTalk('');
+  const send = () => { const v = $('#typein').value.trim(); if (!v) return; $('#typein').value = ''; if (S.conv) { S.conv.sendUserMessage(v); addMsg('user', v); S.session.userEnd = performance.now(); } else startTalk(v); };
+  $('#typego').onclick = send; $('#typein').onkeydown = e => e.key === 'Enter' && send();
+  $('#clr').onclick = () => { S.transcript = []; paintTranscript(); };
+}
+function paintTalk() {
+  paintNav();
+  const orb = $('#orb'); if (!orb) return;
+  const m = S.conv ? S.mode : S.mode === 'connecting' ? 'connecting' : S.wakeOn ? 'wake' : 'idle';
+  orb.dataset.mode = m;
+  const name = S.pack?.assistant || 'Jarvis';
+  const txt = { idle: [`Tap to talk`, wakeSupported() && S.settings.wake ? 'Wake word paused' : wakeSupported() ? 'Or switch on the wake word in Settings' : 'This browser cannot listen for a wake word'],
+    wake: [`Say “${name}”`, S.wakeOn === 'pv' ? 'Listening on this device for the wake word' : 'Listening for the wake word. Keep the app open.'],
+    connecting: ['One sec…', 'Connecting'], listening: ['Listening', 'Tap the orb to finish'], speaking: [name + ' is speaking', 'Just talk to interrupt'] }[m] || ['', ''];
+  $('#state').innerHTML = `${esc(txt[0])}<small>${esc(txt[1])}${S.voiceErr && !S.conv ? ' · ' + esc(S.voiceErr) : ''}</small>`;
+}
+function paintTranscript() { const el = $('#tx'); if (!el) return; el.innerHTML = S.transcript.length ? S.transcript.map(m => `<div class="msg ${m.who}"${dirAttr(m.text)}>${esc(m.text)}</div>`).join('') : '<div class="empty">Say “Jarvis”, or tap the orb.</div>'; el.scrollTop = el.scrollHeight; }
+function paintActions() {
+  const el = $('#acts'); if (!el) return;
+  el.innerHTML = S.actions.length ? S.actions.slice(0, 8).map(a => `<div class="act ${a.status}"><span class="ic">${svg(a.icon || 'task')}</span><div class="t"><div>${esc(a.label)}</div>
+    <small>${a.status === 'pending' ? 'saving…' : a.status === 'failed' ? 'Not saved: ' + esc(a.note || '') : a.status === 'ready' ? 'Ready for you to send' : esc(a.note || 'done')}</small>
+    ${a.wa ? `<div class="wa"${dirAttr(a.wa.text)}>${esc(a.wa.text)}</div><a class="pill sm primary" style="margin-top:8px" target="_blank" rel="noopener" href="${esc(a.wa.link)}">Open in WhatsApp</a>` : ''}
+    ${a.mail ? `<div class="mail"><div class="mh">To ${esc(a.mail.to)} · ${esc(a.mail.subject)}</div><div class="mb"${dirAttr(a.mail.body)}>${esc(a.mail.body)}</div></div>` : ''}</div></div>`).join('') : '<div class="empty">Tasks, meetings, drafts and messages appear here as Jarvis does them.</div>';
+}
+
+/* ---------- Tasks ---------- */
+function viewTasks() {
+  const f = S.filter.tasks || 'all', all = tasksOpen();
+  const list = all.filter(t => f === 'all' || (f === 'over' && t.over) || (f === 'pri' && t.pri) || (f === 'work' && t.area !== 'Personal') || (f === 'personal' && t.area === 'Personal'));
+  const done = (sec('tasks').done || []).slice(0, 8);
+  return `<div class="panel"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+    <input class="field" id="newtask" placeholder="Add a task and press Enter" style="flex:1;min-width:220px">
+    <div class="seg" id="tf">${[['all', 'All ' + all.length], ['over', 'Overdue'], ['pri', 'Priority'], ['work', 'Work'], ['personal', 'Personal']].map(([k, l]) => `<button data-f="${k}" class="${f === k ? 'on' : ''}">${l}</button>`).join('')}</div></div>
+    ${list.length ? list.map(taskRow).join('') : '<div class="empty">Nothing here.</div>'}</div>
+    ${done.length ? `<div class="panel" style="margin-top:14px"><h3>Recently done</h3>${done.map(t => `<div class="row"><button class="check on" data-undo="${esc(t.id)}" aria-label="Undo"></button><div class="t"><div class="muted" style="text-decoration:line-through">${esc(t.title)}</div></div><small class="muted">${t.doneMs ? ago(t.doneMs) : ''}</small></div>`).join('')}</div>` : ''}`;
+}
+function bindTaskChecks() {
+  document.querySelectorAll('[data-done]').forEach(b => b.onclick = () => {
+    const t = tasksOpen().find(x => x.id === b.dataset.done); if (!t) return;
+    b.classList.add('on'); sec('tasks').open = tasksOpen().filter(x => x !== t);
+    const d = sec('tasks'); d.done = [{ id: t.id, title: t.t, doneMs: Date.now() }].concat(d.done || []);
+    /^tmp/.test(t.id) ? bg('complete_task', { match: t.t }, 'Done: ' + t.t, { icon: 'check' }) : bg('task_done', { id: t.id }, 'Done: ' + t.t, { icon: 'check' });
+    setTimeout(render, 250);
+  });
+  document.querySelectorAll('[data-undo]').forEach(b => b.onclick = () => {
+    const d = sec('tasks'), t = (d.done || []).find(x => x.id === b.dataset.undo); if (!t) return;
+    d.done = d.done.filter(x => x !== t); d.open = [{ id: t.id, t: t.title }].concat(tasksOpen());
+    bg('task_reopen', { id: t.id, title: t.title }, 'Back on the list: ' + t.title, { icon: 'task' }); render();
+  });
+}
+function bindTasks() {
+  bindTaskChecks();
+  $('#newtask').onkeydown = e => { if (e.key === 'Enter' && e.target.value.trim()) { TOOLS.add_task({ title: e.target.value.trim() }); e.target.value = ''; render(); setTimeout(() => $('#newtask')?.focus(), 0); } };
+  document.querySelectorAll('#tf button').forEach(b => b.onclick = () => { S.filter.tasks = b.dataset.f; render(); });
+}
+
+/* ---------- Calendar ---------- */
+function viewCalendar() {
+  const byDay = {}; events().filter(e => e.e > Date.now() - 3600000).forEach(e => (byDay[cairoISO(new Date(e.s))] = byDay[cairoISO(new Date(e.s))] || []).push(e));
+  const days = Object.keys(byDay).sort();
+  return days.length ? `<div class="grid2">${days.map(d => `<div class="panel"><h3>${esc(relDay(d))}<span class="r muted">${esc(d)}</span></h3>${eventRows(byDay[d], '')}</div>`).join('')}</div>` : '<div class="panel"><div class="empty">Nothing on the calendar this week.</div></div>';
+}
+
+/* ---------- Inbox & drafts ---------- */
+function viewInbox() {
+  const th = sec('inbox').threads || [];
+  return `<div class="grid2">
+   <div class="panel"><h3>${svg('inbox')}Unread or important<span class="r muted">3 days</span></h3>${th.length ? th.map(t => `<div class="row"><div class="t"><div>${esc(t.from)}</div><small${dirAttr(t.subject)}>${esc(t.subject)}</small></div><span class="chip ${t.unread ? 'info' : 'plain'}">${esc(t.date)}</span></div>`).join('') : '<div class="empty">Nothing waiting.</div>'}
+     <p class="src">Ask Jarvis to read or reply. Replies are saved as Gmail drafts, never sent.</p></div>
+   <div class="panel"><h3>${svg('wa')}WhatsApp ready to send</h3>${S.outbox.length ? S.outbox.slice(0, 6).map((o, i) => `<div class="row" style="align-items:flex-start"><div class="t"><div>${esc(o.name)}</div><div class="wa"${dirAttr(o.text)}>${esc(o.text)}</div></div><div style="display:flex;flex-direction:column;gap:6px"><a class="pill sm primary" target="_blank" rel="noopener" href="${esc(o.link)}">Open</a><button class="pill sm" data-ob="${i}">Clear</button></div></div>`).join('') : '<div class="empty">Nothing waiting.</div>'}</div>
+   <div class="panel"><h3>${svg('mail')}Drafts saved by Jarvis<span class="r"><a class="pill sm" target="_blank" rel="noopener" href="${esc(S.pack?.links?.gmail_drafts || '#')}">Gmail drafts</a></span></h3>${S.drafts.length ? S.drafts.slice(0, 8).map(d => `<div class="mail" style="margin-bottom:8px"><div class="mh">To ${esc(d.to)} · ${esc(d.subject)} · ${ago(d.at)}</div><div class="mb"${dirAttr(d.body)}>${esc(d.body)}</div></div>`).join('') : '<div class="empty">None yet.</div>'}</div>
+  </div>`;
+}
+function bindInbox() { document.querySelectorAll('[data-ob]').forEach(b => b.onclick = () => { S.outbox.splice(+b.dataset.ob, 1); LS.set('outbox', S.outbox); render(); }); }
+
+/* ---------- Applicants ---------- */
+function flowchart(small) {
+  const F = apps().funnel || {}, phases = S.pack?.pipeline?.phases || [];
+  const W = 160, NW = 132, NH = 50, RH = small ? 74 : 84, LX = 74;
+  const cols = Math.max(...phases.map(p => p.nodes.length), 1), w = LX + cols * W + 10, h = phases.length * RH + 8;
+  let out = `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Admissions pipeline">`;
+  phases.forEach((p, r) => {
+    const y = 8 + r * RH;
+    out += `<text class="ph" x="0" y="${y + NH / 2 + 4}">${esc(p.label.toUpperCase())}</text>`;
+    p.nodes.forEach(([k, l], c) => {
+      const x = LX + c * W;
+      if (c > 0) out += `<path class="arrow" d="M${x - W + NW + 2} ${y + NH / 2} L${x - 4} ${y + NH / 2}" marker-end="url(#ah)"/>`;
+      if (k === '?') out += `<g><path class="dia" d="M${x + NW / 2} ${y + 3} L${x + NW / 2 + 22} ${y + NH / 2} L${x + NW / 2} ${y + NH - 3} L${x + NW / 2 - 22} ${y + NH / 2} Z"/><text class="dl" x="${x + NW / 2}" y="${y + NH + 11}" text-anchor="middle">${esc(l)}</text></g>`;
+      else out += `<g class="node"><rect x="${x}" y="${y}" width="${NW}" height="${NH}" rx="10"/><text class="n num" x="${x + 12}" y="${y + 22}">${F[k] ?? '–'}</text><text class="l" x="${x + 12}" y="${y + 39}">${esc(l)}</text></g>`;
+    });
+  });
+  return `<div class="flow"><svg width="0" height="0" style="position:absolute"><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 L10 5 L0 10z" fill="currentColor" style="color:var(--ink3)"/></marker></defs></svg>${out}</svg></div>`;
+}
+function viewApplicants() {
+  const a = apps(); if (!a.index) return `<div class="panel"><div class="empty">${esc(a.message || a.error || 'The applicant list is not loaded yet.')}</div></div>`;
+  const f = S.filter.app || { q: '', t: 'NEW', o: '' };
+  const owners = Object.keys(a.owners || {});
+  const fuMap = {}; (a.followups || []).forEach(x => fuMap[x.id] = x);
+  let list = a.index.filter(r => (f.t === 'ALL' || r.ty === f.t) && (!f.o || r.o === f.o) && (!f.q || r.n.toLowerCase().includes(f.q.toLowerCase())) && (!f.fu || fuMap[r.id]));
+  list = list.sort((x, y) => (fuMap[x.id] ? 0 : 1) - (fuMap[y.id] ? 0 : 1) || (daysIn(y) || 0) - (daysIn(x) || 0)).slice(0, 300);
+  const fc = a.followup_counts || {};
+  return `<div class="kpis">${kpiTiles()}</div>
+  <div class="panel" style="margin-bottom:14px"><h3>Pipeline<span class="r muted">${esc(a.cycle)} · export ${esc(a.asof)} · day ${a.day_of_cycle}</span></h3>${innerWidth <= 900 ? miniFunnel(true) : flowchart()}<div class="src">${esc(S.pack?.rules_note || '')} Source: ${esc(a.source_file)}.</div></div>
+  <div class="panel"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+    <input class="field" id="aq" placeholder="Find a student" value="${esc(f.q)}" style="flex:1;min-width:180px">
+    <div class="seg" id="at">${[['NEW', 'New'], ['RE', 'Re-enrolment'], ['FA', 'Fanar'], ['ALL', 'All']].map(([k, l]) => `<button data-t="${k}" class="${f.t === k ? 'on' : ''}">${l}</button>`).join('')}</div>
+    <select class="field" id="ao" style="width:auto"><option value="">All counselors</option>${owners.map(o => `<option ${f.o === o ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>
+    <button class="pill sm ${f.fu ? 'primary' : ''}" id="afu">Needs follow-up ${(a.followups || []).length}</button></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">${Object.keys(fc).map(k => `<span class="chip ${k === 'phase1_review' || k === 'under_review' ? 'info' : k === 'submit_ready' ? 'ok' : 'watch'}">${fc[k]} ${esc(({ submit_ready: 'ready to submit', partial: 'part-way', not_started: 'not started', phase1_review: 'Phase I review (us)', book_cat4: 'book CAT4', file_completion: 'file incomplete', under_review: 'in committee' })[k] || k)}</span>`).join('')}</div>
+    <div style="overflow:auto"><table><thead><tr><th>Student</th><th>Grade</th><th>Where they are</th><th class="hide-m">Counselor</th><th class="hide-m">Days</th><th>Next</th></tr></thead><tbody>
+    ${list.map(r => `<tr data-app="${esc(r.id || r.n)}"><td${dirAttr(r.n)}>${esc(r.n)}</td><td>${esc(r.g)}</td><td>${esc(r.w)}</td><td class="hide-m">${esc(r.o)}</td><td class="hide-m num">${daysIn(r) ?? ''}</td><td>${fuMap[r.id] ? `<span class="chip ${fuMap[r.id].who === 'team' ? 'info' : fuMap[r.id].stalled ? 'bad' : 'watch'}">${esc(fuMap[r.id].rl)}</span>` : ''}</td></tr>`).join('')}
+    </tbody></table></div><p class="src">${list.length} shown. No scores are shown or spoken.</p></div>`;
+}
+function bindApplicants() {
+  const f = S.filter.app = S.filter.app || { q: '', t: 'NEW', o: '' };
+  $('#aq').oninput = e => { f.q = e.target.value; clearTimeout(bindApplicants.t); bindApplicants.t = setTimeout(() => { render(); const i = $('#aq'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }, 200); };
+  document.querySelectorAll('#at button').forEach(b => b.onclick = () => { f.t = b.dataset.t; render(); });
+  $('#ao').onchange = e => { f.o = e.target.value; render(); };
+  $('#afu').onclick = () => { f.fu = !f.fu; render(); };
+  document.querySelectorAll('[data-app]').forEach(tr => tr.onclick = () => { const r = (apps().index || []).find(x => (x.id || x.n) === tr.dataset.app); r && openApplicant(r); });
+}
+function openApplicant(r, quiet) {
+  if (quiet && innerWidth <= 900 && S.view === 'talk') return;
+  const fu = (apps().followups || []).find(x => x.id === r.id), link = S.pack?.links?.applicant && r.sid ? S.pack.links.applicant.replace(/\{sid\}/g, encodeURIComponent(r.sid)) : '';
+  $('#overlay').innerHTML = `<div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-label="${esc(r.n)}">
+    <button class="pill sm" id="dx" style="float:right">Close</button><h2${dirAttr(r.n)}>${esc(r.n)}</h2><div class="muted">${esc(r.g)} · ${r.ty === 'RE' ? 'Re-enrolment' : r.ty === 'FA' ? 'Fanar' : 'New applicant'} · ID ${esc(r.id || '–')}</div>
+    <dl class="kv"><dt>Where they are</dt><dd>${esc(r.w)}</dd><dt>Stage in HEIApply</dt><dd>${esc(r.st)}</dd><dt>Counselor</dt><dd>${esc(r.o)}${r.co && r.co.length ? ' (with ' + esc(r.co.join(', ')) + ')' : ''}</dd>
+      <dt>In this stage</dt><dd>${daysIn(r) ?? '–'} days, since ${esc(r.since || '–')}</dd><dt>Submitted</dt><dd>${r.sub ? 'Yes' + (r.sa ? ', ' + esc(r.sa) : '') : 'No'}</dd>
+      <dt>Steps done</dt><dd>${[r.cat4 ? 'CAT4' : '', r.itep ? 'iTEP' : '', r.int ? 'Interview' : ''].filter(Boolean).join(', ') || 'None yet'}</dd><dt>Created</dt><dd>${esc(r.c || '–')}</dd>
+      ${fu ? `<dt>Next step</dt><dd><span class="chip ${fu.who === 'team' ? 'info' : 'watch'}">${esc(fu.rl)}</span>${fu.stalled ? ' <span class="chip bad">stalled</span>' : ''}</dd>` : ''}</dl>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">${link ? `<a class="pill primary" target="_blank" rel="noopener" href="${esc(link)}">Open in HEIApply</a>` : ''}<button class="pill" id="pdone">Mark follow-up done in the Pulse</button></div>
+    <p class="src">Scores are never shown here or spoken by Jarvis. From the export of ${esc(apps().asof)}.</p></aside>`;
+  $('#scrim').onclick = closeOverlay; $('#dx').onclick = closeOverlay;
+  $('#pdone').onclick = () => { bg('pulse_request', { app_id: r.id, name: r.n, kind: 'done', text: 'Marked done from Jarvis' }, 'Pulse: done for ' + r.n, { icon: 'pulse' }); toast('Sent to the Pulse'); closeOverlay(); };
+}
+
+/* ---------- Reports ---------- */
+function viewReports() {
+  const list = jobs();
+  return `<div class="panel" style="margin-bottom:14px"><h3>Start a job</h3><div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="pill" data-job="season_compare">Season comparison</button><button class="pill" data-job="followup_list">Follow-up list</button><button class="pill" data-job="weekly_report">Weekly report for Todd</button></div>
+    <p class="src">Or just ask Jarvis. Results appear here as cards and Jarvis tells you when they are ready.</p></div>
+    ${list.length ? list.map(j => jobCard(j)).join('') : '<div class="panel"><div class="empty">No reports yet.</div></div>'}`;
+}
+function bindReports() { document.querySelectorAll('[data-job]').forEach(b => b.onclick = () => { runJob(b.dataset.job, ''); toast('Started'); }); jobs().forEach(j => { if (j.status === 'done') S.seen[j.id] = 1; }); LS.set('seenJobs', S.seen); setTimeout(paintNav, 50); }
+function lineChart(c) {
+  const W = 640, H = 220, L = 40, B = 26, T = 10, R = 10, xs = c.x || [], ser = c.series || [];
+  const max = Math.max(1, ...ser.flatMap(s => s.values.filter(v => v != null)));
+  const X = i => L + (xs.length < 2 ? 0 : i * (W - L - R) / (xs.length - 1)), Y = v => T + (H - T - B) * (1 - v / max);
+  const colors = ['var(--brand)', 'var(--brand2)', '#9b99b8', '#2f8f74'];
+  let s = `<svg viewBox="0 0 ${W} ${H}">`;
+  [0, .5, 1].forEach(f => { const v = Math.round(max * f); s += `<line class="ax" x1="${L}" x2="${W - R}" y1="${Y(v)}" y2="${Y(v)}"/><text class="lab" x="${L - 6}" y="${Y(v) + 3}" text-anchor="end">${v}</text>`; });
+  xs.forEach((x, i) => { if (xs.length <= 8 || i % Math.ceil(xs.length / 8) === 0) s += `<text class="lab" x="${X(i)}" y="${H - 8}" text-anchor="${i === 0 ? 'start' : i === xs.length - 1 ? 'end' : 'middle'}">${esc(x)}</text>`; });
+  ser.forEach((se, k) => { const pts = se.values.map((v, i) => v == null ? null : `${X(i)},${Y(v)}`).filter(Boolean); s += `<polyline points="${pts.join(' ')}" fill="none" stroke="${colors[k % 4]}" stroke-width="${k ? 1.8 : 2.6}" ${k > 1 ? 'stroke-dasharray="4 4"' : ''}/>`; });
+  s += '</svg>';
+  return s + `<div style="display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2)">${ser.map((se, k) => `<span><i style="display:inline-block;width:12px;height:3px;background:${colors[k % 4]};vertical-align:middle;margin-right:5px"></i>${esc(se.name)}</span>`).join('')}</div>`;
+}
+
+/* ---------- Memory ---------- */
+function viewMemory() {
+  const m = sec('mem');
+  return `<div class="grid2"><div class="panel"><h3>${svg('memory')}Learned, waiting for you</h3>${(m.learned || []).length ? m.learned.map(l => `<div class="row" style="align-items:flex-start"><div class="t"><textarea class="field" data-ln="${esc(l.id)}" rows="2">${esc(l.note)}</textarea></div><div style="display:flex;flex-direction:column;gap:6px"><button class="pill sm primary" data-ok="${esc(l.id)}">Keep</button><button class="pill sm danger" data-no="${esc(l.id)}">Delete</button></div></div>`).join('') : '<div class="empty">Nothing new. After a conversation, anything that sounded like a standing preference shows up here for you to keep or delete.</div>'}</div>
+    <div class="panel"><h3>What Jarvis remembers</h3>${(m.notes || []).length ? m.notes.slice().reverse().map(n => `<div class="row"><div class="t"><div${dirAttr(n)}>${esc(n)}</div></div></div>`).join('') : '<div class="empty">Nothing yet. Say “remember that…”.</div>'}<p class="src">Notes live in the Memory tab of your Jarvis sheet in Manara Drive.</p></div></div>`;
+}
+function bindMemory() {
+  document.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => { const id = b.dataset.ok, note = $(`[data-ln="${id}"]`).value; bg('learned_decide', { id, decision: 'approve', note }, 'Kept: ' + note, { icon: 'mem' }); const m = sec('mem'); m.learned = m.learned.filter(x => x.id !== id); (m.notes = m.notes || []).push(note); render(); });
+  document.querySelectorAll('[data-no]').forEach(b => b.onclick = () => { const id = b.dataset.no; bg('learned_decide', { id, decision: 'dismiss' }, 'Deleted a learned note', { icon: 'mem' }); const m = sec('mem'); m.learned = m.learned.filter(x => x.id !== id); render(); });
+}
+
+/* ---------- Settings ---------- */
+function viewSettings() {
+  const st = S.settings, rows = S.perf.slice(0, 40);
+  return `<div class="grid2">
+   <div class="panel"><h3>Voice and wake word</h3>
+    <div class="row"><div class="t"><div>Wake word “${esc(S.pack?.assistant || 'Jarvis')}”</div><small>${wakeSupported() ? (S.settings.pvKey ? 'On-device (Porcupine)' : 'Browser speech recognition. Works while the app is open on screen.') : 'Not available in this browser. Tap the orb instead.'}</small></div><button class="pill sm ${st.wake ? 'primary' : ''}" id="sw">${st.wake ? 'On' : 'Off'}</button></div>
+    <div class="row"><div class="t"><div>Keep the screen awake while listening</div><small>Needed for the wake word on phones. Uses more battery.</small></div><button class="pill sm ${st.keepAwake ? 'primary' : ''}" id="sk">${st.keepAwake ? 'On' : 'Off'}</button></div>
+    <div class="row"><div class="t"><div>Picovoice key (optional)</div><small>For the more accurate on-device wake word. Stored only on this device.</small><input class="field" id="pvk" type="password" placeholder="${st.pvKey ? 'saved' : 'paste key'}" style="margin-top:6px"></div><button class="pill sm" id="pvs">Save</button></div>
+    <div class="row"><div class="t"><div>Notifications</div><small>So a finished report can ping you.</small></div><button class="pill sm" id="sn">${'Notification' in window ? (Notification.permission === 'granted' ? 'Allowed' : 'Allow') : 'Not supported'}</button></div>
+   </div>
+   <div class="panel"><h3>This device</h3>
+    <div class="row"><div class="t"><div>Backend</div><small>${paired() ? 'Connected · key stored on this device only' : 'Not connected'}</small></div><span class="dot ${S.net === 'on' ? 'on' : S.net === 'warn' ? 'warn' : ''}"></span></div>
+    <div class="row"><div class="t"><div>Theme</div></div><div class="seg" id="th">${['system', 'light', 'dark'].map(t => `<button data-th="${t}" class="${st.theme === t ? 'on' : ''}">${t[0].toUpperCase() + t.slice(1)}</button>`).join('')}</div></div>
+    <div class="row"><div class="t"><div>Lock after</div></div><div class="seg" id="lh">${[1, 12, 72].map(n => `<button data-lh="${n}" class="${st.lockHours === n ? 'on' : ''}">${n} h</button>`).join('')}</div></div>
+    <div class="row"><div class="t"><div>Install on this device</div><small>Phone: Share → Add to Home Screen. Computer: the install icon in the address bar.</small></div></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="pill" id="lk">Lock now</button><button class="pill" id="cc">Change access code</button>${S.pack?.pair_url ? `<a class="pill" href="${esc(S.pack.pair_url)}?pair=1">Pair again</a>` : ''}<button class="pill danger" id="fg">Forget this device</button></div>
+   </div>
+   <div class="panel" style="grid-column:1/-1"><h3>Timings<span class="r"><button class="pill sm" id="pc">Clear</button></span></h3>
+    <div style="overflow:auto"><table><thead><tr><th>When</th><th>What</th><th>ms</th><th>Note</th></tr></thead><tbody style="cursor:default">${rows.map(r => `<tr><td class="muted">${new Date(r.at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td><td>${esc(r.name)}</td><td class="num ${r.ms > 1500 ? '' : ''}"><span class="chip ${r.ms === 0 ? 'plain' : r.ms <= 1000 ? 'ok' : r.ms <= 2500 ? 'watch' : 'bad'}">${r.ms || '–'}</span></td><td class="muted">${esc(r.extra)}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">Nothing measured yet.</td></tr>'}</tbody></table></div>
+    <p class="src">Version ${VERSION} · pack ${esc(S.pack?.id || PACK_ID)}. “First words after wake” is the number that matters for speed.</p></div>
+  </div>`;
+}
+function saveSettings() { LS.set('settings', S.settings); }
+function bindSettings() {
+  $('#sw').onclick = () => { S.settings.wake = !S.settings.wake; saveSettings(); S.settings.wake ? startWake() : stopWake(); render(); };
+  $('#sk').onclick = () => { S.settings.keepAwake = !S.settings.keepAwake; saveSettings(); render(); };
+  $('#pvs').onclick = () => { S.settings.pvKey = $('#pvk').value.trim(); saveSettings(); stopWake(); pv = null; startWake(); toast(S.settings.pvKey ? 'Key saved on this device' : 'Key removed'); render(); };
+  $('#sn').onclick = async () => { try { await Notification.requestPermission(); } catch (e) {} render(); };
+  document.querySelectorAll('[data-th]').forEach(b => b.onclick = () => { S.settings.theme = b.dataset.th; saveSettings(); applyTheme(); render(); });
+  document.querySelectorAll('[data-lh]').forEach(b => b.onclick = () => { S.settings.lockHours = +b.dataset.lh; saveSettings(); render(); });
+  $('#lk').onclick = () => { LS.set('unlockedAt', 0); checkLock(); };
+  $('#cc').onclick = () => showLock('set');
+  $('#fg').onclick = () => { if (!confirmInline('#fg', 'Tap again to forget')) return; ['key', 'api', 'snap', 'code', 'unlockedAt', 'outbox', 'drafts', 'perf'].forEach(LS.del); location.reload(); };
+  $('#pc').onclick = () => { S.perf = []; LS.set('perf', []); render(); };
+}
+function confirmInline(sel, label) { const b = $(sel); if (b.dataset.armed) return true; b.dataset.armed = 1; b.textContent = label; setTimeout(() => { if (b.isConnected) { delete b.dataset.armed; b.textContent = 'Forget this device'; } }, 3000); return false; }
+
+/* ---------- quick search (⌘K) ---------- */
+function searchAll(q) {
+  if (!q || q.length < 2) return [];
+  const out = [];
+  findPeople(q).slice(0, 4).forEach(p => out.push({ k: 'person', l: p.n, s: p.e || (p.p ? '+' + p.p : ''), go: () => toast(p.e || ('+' + p.p)) }));
+  findApplicants(q).slice(0, 5).forEach(r => out.push({ k: 'applicant', l: r.n, s: r.g + ' · ' + r.w, go: () => openApplicant(r) }));
+  tasksOpen().filter(t => t.t.toLowerCase().includes(q.toLowerCase())).slice(0, 4).forEach(t => out.push({ k: 'task', l: t.t, s: t.due || '', go: () => setView('tasks') }));
+  events().filter(e => e.t.toLowerCase().includes(q.toLowerCase())).slice(0, 3).forEach(e => out.push({ k: 'meeting', l: e.t, s: cairoDay(new Date(e.s)) + ' ' + cairoHM(new Date(e.s)), go: () => setView('calendar') }));
+  return out;
+}
+$('#q').addEventListener('input', e => {
+  const res = searchAll(e.target.value.trim()), box = $('#results');
+  if (!res.length) { box.classList.add('hide'); return; }
+  box.innerHTML = res.map((r, i) => `<div data-i="${i}"><span class="chip plain">${r.k}</span> ${esc(r.l)}<small>${esc(r.s)}</small></div>`).join('');
+  box.classList.remove('hide');
+  box.querySelectorAll('[data-i]').forEach(d => d.onclick = () => { res[+d.dataset.i].go(); box.classList.add('hide'); $('#q').value = ''; });
+});
+$('#q').addEventListener('blur', () => setTimeout(() => $('#results').classList.add('hide'), 200));
+document.addEventListener('keydown', e => { if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#q').focus(); } if (e.key === 'Escape') closeOverlay(); });
+$('#talkBtn').onclick = () => { if (S.view !== 'talk') setView('talk'); S.conv ? stopTalk() : startTalk(''); };
+$('#refreshBtn').onclick = async () => { toast('Refreshing'); await refresh(true); toast('Up to date'); };
+
+/* =====================================================================
+   START
+   ===================================================================== */
+window.J2 = { TOOLS, dynVars, S, cairoToMs }; // for checks from the browser console
+(async function boot() {
+  applyTheme();
+  await loadPack();
+  render();
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if (!paired()) return;
+  if (S.justPaired) toast('This device is connected');
+  const locked = checkLock();
+  refresh();
+  prefetchVoice();
+  if (!locked) startWake();
+  setInterval(() => { if (document.visibilityState === 'visible') refresh(); }, 4 * 60000);
+  setInterval(() => { if (document.visibilityState === 'visible' && !S.conv && (!S.voice || Date.now() - S.voice.at > 8 * 60000)) prefetchVoice(); }, 60000);
+})();
+</script>
+</body>
+</html>
