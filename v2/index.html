@@ -379,7 +379,7 @@ body.staged{overflow:hidden}
 /* =====================================================================
    JARVIS CORE  (no school names, data or brand in here: those come from the pack)
    ===================================================================== */
-const VERSION = '2.2.0';
+const VERSION = '2.2.1';
 const SDK_URL = 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.36.1/+esm';
 const PACK_ID = new URLSearchParams(location.search).get('pack') || 'manara';
 const TZ = 'Africa/Cairo';
@@ -779,7 +779,7 @@ async function startTalk(cmd) {
   if (S.conv || S.mode === 'connecting') return;
   if (!paired()) { setView('settings'); return; }
   openStage();
-  S.mode = 'connecting'; paintTalk(); stopWake();
+  S.mode = 'connecting'; paintTalk(); await stopWake();
   const t0 = performance.now(); S.session = { t0, cmd: cmd || '', first: 0 };
   try {
     if (!S.voice || Date.now() - S.voice.at > 9 * 60000) await prefetchVoice();
@@ -787,7 +787,7 @@ async function startTalk(cmd) {
     const url = S.voice.url; S.voice = null;
     const { Conversation } = await loadSDK();
     const opts = {
-      signedUrl: url, connectionType: 'websocket', dynamicVariables: dynVars(), clientTools: TOOLS, useWakeLock: true,
+      signedUrl: url, connectionType: 'websocket', dynamicVariables: dynVars(), clientTools: TOOLS, useWakeLock: true, preferHeadphonesForIosDevices: true,
       onConnect: () => { S.session.connected = performance.now() - t0; perf('voice connect', S.session.connected); if (cmd) { try { S.conv.sendUserMessage(cmd); addMsg('user', cmd); S.session.sent = performance.now(); } catch (e) {} } },
       onDisconnect: () => endTalk(),
       onError: (m) => { banner('Voice: ' + m); },
@@ -797,16 +797,28 @@ async function startTalk(cmd) {
         if (mode === 'speaking' && S.session.userEnd) { perf('reply started', performance.now() - S.session.userEnd); S.session.userEnd = 0; }
         paintTalk();
       },
-      onMessage: (m) => { const who = (m.role || m.source) === 'user' ? 'user' : 'ai'; addMsg(who, m.message); if (who === 'user') S.session.userEnd = performance.now(); },
+      onMessage: (m) => { const who = (m.role || m.source) === 'user' ? 'user' : 'ai'; addMsg(who, m.message); if (who === 'user') { S.session.userEnd = performance.now(); S.session.heard = 1; } },
       onAgentToolResponse: (r) => { if (r && r.tool_name) perf('tool ' + r.tool_name + ' (agent)', 0, r.is_error ? 'error' : ''); }
     };
     if (cmd) opts.overrides = { agent: { firstMessage: '' } };
     S.conv = await Conversation.startSession(opts);
-    S.mode = 'listening'; paintTalk(); volLoop();
+    S.mode = 'listening'; paintTalk(); volLoop(); micWatch(cmd);
     setTimeout(prefetchVoice, 1500); // the next link, so the next wake is instant
   } catch (e) { S.conv = null; S.mode = 'idle'; paintTalk(); banner(e.message || String(e)); startWake(); }
 }
 async function stopTalk() { try { await S.conv?.endSession(); } catch (e) {} endTalk(); }
+/* If the microphone delivers pure silence (an iPhone quirk after the wake word), reopen the call once; then ask for a tap. */
+function micWatch(cmd) {
+  const ses = S.session, conv = S.conv; if (!ses) return; ses.micMax = 0;
+  setTimeout(async () => {
+    if (S.conv !== conv || ses.heard || ses.micMax > 0.0005) { perf('mic level', 0, 'peak ' + (ses.micMax || 0).toFixed(3)); return; }
+    perf('mic silent', 0, S.micRetry ? 'second time' : 'reopening');
+    if (S.micRetry) { S.micRetry = 0; banner('Jarvis cannot hear the microphone. Tap the orb to talk; on iPhone a tap opens the mic reliably.'); return; }
+    S.micRetry = 1; S.noWake = true;
+    try { await conv.endSession(); } catch (e) {}
+    setTimeout(() => { S.noWake = false; startTalk(cmd ? '' : ''); }, 700);
+  }, 7000);
+}
 function endTalk() {
   if (!S.conv && S.mode === 'idle') return;
   S.conv = null; S.mode = 'idle'; paintTalk();
@@ -824,7 +836,7 @@ function proposeLearned() {
 function volLoop() {
   const orb = $('#orb'); if (!S.conv) { if (orb) { orb.style.setProperty('--in', 0); orb.style.setProperty('--out', 0); } return; }
   try {
-    const i = Math.min(1, S.conv.getInputVolume() * 2.2), o = Math.min(1, S.conv.getOutputVolume() * 1.8);
+    const iv = S.conv.getInputVolume(); if (S.session && iv > (S.session.micMax || 0)) S.session.micMax = iv; if (iv > 0.0005) S.micRetry = 0; const i = Math.min(1, iv * 2.2), o = Math.min(1, S.conv.getOutputVolume() * 1.8);
     if (orb) { orb.style.setProperty('--in', i.toFixed(3)); orb.style.setProperty('--out', o.toFixed(3)); orb.querySelectorAll('.bars i').forEach((b, k) => b.style.setProperty('--h', Math.round((k === 1 ? 46 : k === 2 ? 30 : 22) * Math.max(i, o) + (k === 1 ? 6 : 0)))); }
   } catch (e) {}
   requestAnimationFrame(volLoop);
@@ -837,10 +849,13 @@ function volLoop() {
    Works while the app is open on screen; a web app cannot listen when the phone is locked.
    ===================================================================== */
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+const IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+/* iPhone: the wake-word listener must fully let go of the microphone before the voice call opens it, or the call gets silence. */
+function wakeThen(cmd) { S.waking = true; S.mode = 'connecting'; paintTalk(); stopWake().then(() => setTimeout(() => { S.waking = false; S.mode = 'idle'; startTalk(cmd); }, IOS ? 450 : 0)); }
 let rec = null, pv = null, wakeLock = null;
 function wakeSupported() { return !!(S.settings.pvKey || SR); }
 async function startWake() {
-  if (!S.settings.wake || S.conv || document.hidden || !paired() || $('#lockHost').innerHTML) return;
+  if (!S.settings.wake || S.conv || S.waking || S.noWake || document.hidden || !paired() || $('#lockHost').innerHTML) return;
   if (S.settings.pvKey && await startPorcupine()) { S.wakeOn = 'pv'; keepAwake(true); paintTalk(); return; }
   if (!SR || rec) return;
   try {
@@ -851,19 +866,21 @@ async function startWake() {
         const t = e.results[i][0].transcript, m = t.match(/\b(?:hey|hi|ok|okay|ya|yalla)?[\s,]*j[ae]r?vi[sz]\b[\s,.!?]*(.*)$/i);
         if (!m || fired) continue;
         const rest = (m[1] || '').trim();
-        if (e.results[i].isFinal || rest.split(/\s+/).length >= 6) { fired = 1; perf('wake word heard', 0, 'speech recognition'); stopWake(); startTalk(rest.split(/\s+/).length >= 2 ? rest : ''); return; }
-        clearTimeout(rec._t); rec._t = setTimeout(() => { if (!fired) { fired = 1; stopWake(); startTalk(''); } }, 1300);
+        if (e.results[i].isFinal || rest.split(/\s+/).length >= 6) { fired = 1; perf('wake word heard', 0, 'speech recognition'); wakeThen(rest.split(/\s+/).length >= 2 ? rest : ''); return; }
+        clearTimeout(rec._t); rec._t = setTimeout(() => { if (!fired) { fired = 1; wakeThen(''); } }, 1300);
       }
     };
     rec.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') { S.settings.wake = false; saveSettings(); banner('Microphone blocked for the wake word. Allow the microphone, then switch the wake word on in Settings.'); } };
-    rec.onend = () => { rec = null; if (S.settings.wake && !S.conv && S.mode !== 'connecting' && !document.hidden) setTimeout(startWake, 400); };
+    rec.onend = () => { rec = null; if (S.settings.wake && !S.conv && !S.waking && S.mode !== 'connecting' && !document.hidden) setTimeout(startWake, 400); };
     rec.start(); S.wakeOn = 'sr'; keepAwake(true); paintTalk();
   } catch (e) { rec = null; }
 }
 function stopWake() {
-  try { rec && (rec.onend = null, rec.abort()); } catch (e) {} rec = null;
+  const r = rec; rec = null;
+  const done = r ? new Promise(res => { try { r.onend = () => res(); r.onresult = null; r.onerror = null; r.abort(); } catch (e) { res(); } setTimeout(res, 1000); }) : Promise.resolve();
   try { pv && pv.stop(); } catch (e) {}
   S.wakeOn = false; keepAwake(false);
+  return done;
 }
 async function startPorcupine() {
   try {
@@ -1250,7 +1267,7 @@ function stageHTML() {
     </div></div>`;
 }
 function bindStage() {
-  $('#orb').onclick = () => S.conv ? stopTalk() : startTalk('');
+  $('#orb').onclick = () => { S.micRetry = 0; S.conv ? stopTalk() : startTalk(''); };
   const send = () => { const v = $('#typein').value.trim(); if (!v) return; $('#typein').value = ''; if (S.conv) { S.conv.sendUserMessage(v); addMsg('user', v); S.session.userEnd = performance.now(); } else startTalk(v); };
   $('#typego').onclick = send; $('#typein').onkeydown = e => { if (e.key === 'Enter') send(); };
   $('#sx').onclick = closeStage; $('#sclr').onclick = clearCards; $('#shist').onclick = () => pull('activity', {}, 'tap');
