@@ -279,6 +279,12 @@ body.staged{overflow:hidden}
 .cr .cb i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--brand)}.cr .cb i.f{background:var(--brand2);top:3px;bottom:3px}
 .cr .cv{text-align:right}.cr .cv b{font:600 20px var(--f-display)}
 .fc .transcript{max-height:260px}
+.qa{padding:10px 0;border-bottom:1px solid var(--line)}.qa:last-of-type{border-bottom:0}
+.qa .qq{font-size:12px;color:var(--ink3);margin-bottom:4px;line-height:1.4}
+.qa .qv{font-size:14px;line-height:1.55;white-space:pre-wrap}
+.qa.hit{background:color-mix(in srgb,var(--brand2) 7%,transparent);border-radius:8px;padding:10px 8px}
+.qd{margin-top:10px}.qd summary{cursor:pointer;font-size:13px;color:var(--ink2)}
+.fc .bd .pill{margin-top:2px}
 @keyframes land{from{opacity:0;transform:translate(var(--fx,-160px),var(--fy,0)) scale(.35) rotate(0deg)}}
 @keyframes nudge{0%{transform:rotate(var(--rot,0deg)) scale(1)}40%{transform:rotate(var(--rot,0deg)) scale(1.03)}100%{transform:rotate(var(--rot,0deg)) scale(1)}}
 @keyframes pop{from{opacity:0;transform:translateY(6px) scale(.95)}}
@@ -373,7 +379,7 @@ body.staged{overflow:hidden}
 /* =====================================================================
    JARVIS CORE  (no school names, data or brand in here: those come from the pack)
    ===================================================================== */
-const VERSION = '2.1.0';
+const VERSION = '2.2.0';
 const SDK_URL = 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.36.1/+esm';
 const PACK_ID = new URLSearchParams(location.search).get('pack') || 'manara';
 const TZ = 'Africa/Cairo';
@@ -634,6 +640,20 @@ const TOOLS = {
       family_to_act: list.filter(f => f.who === 'family').length, team_to_act: list.filter(f => f.who === 'team').length, stalled_2_weeks: list.filter(f => f.stalled).length,
       on_screen: true, offer: shown?.offer || '', rule: 'The names are on Omar\'s screen. Say the total and the biggest group in one sentence; do not read names unless he asks about one student.' });
   },
+  async application_answers({ name, question }) {
+    const hits = findApplicants(name || '');
+    if (!hits.length) return J({ found: 0, note: `No applicant called ${name} in the ${apps().asof} export.` });
+    if (hits.length > 1) return J({ found: hits.length, note: 'More than one match. Ask which one: ' + hits.slice(0, 4).map(r => r.n + ' (' + r.g + ')').join(', ') });
+    const r = hits[0], id = r.id || r.n, d = await loadDet(id);
+    const shown = pull('answers', { id });
+    if (!d || d.err) return J({ note: (d && d.err) || 'I could not open the application.' });
+    const words = String(question || '').toLowerCase().split(/\W+/).filter(w => w.length > 3);
+    let f = d.fields.filter(x => x[0].length > QA_SHORT || x[1].length > 120 || /school|language|nationality|hear about|previous|repeated|accommodation|dismissed|preferred name|age|gender|governorate/i.test(x[0]));
+    if (words.length) { const m = d.fields.filter(x => words.some(w => (x[0] + ' ' + x[1]).toLowerCase().includes(w))); if (m.length) f = m; }
+    let out = [], n = 0; for (const x of f) { const v = x[1].length > 1500 ? x[1].slice(0, 1500) + '…' : x[1]; n += x[0].length + v.length; if (n > 9000) break; out.push({ question: x[0], answer: v }); }
+    return J({ student: r.n, grade: r.g, export_date: d.asof, on_screen: true, answers: out, offer: shown?.offer || '',
+      rule: 'Summarise what they wrote in one or two sentences; quote a short phrase if useful. Do not rate or judge the applicant or suggest a decision. Scores and financial information are not available to you.' });
+  },
   async pull_up({ what, detail }) {
     const d = String(detail || '').trim();
     if (what === 'clear') { clearCards(); return 'Cleared.'; }
@@ -641,6 +661,7 @@ const TOOLS = {
     if (what === 'ready_to_submit') return TOOLS.followups({ counselor: d || 'all', reason: 'submit_ready' });
     if (what === 'stalled') return TOOLS.followups({ counselor: d || 'all', reason: 'stalled' });
     if (what === 'applicant') return d ? TOOLS.find_applicant({ name: d }) : 'Which student?';
+    if (what === 'answers') return d ? TOOLS.application_answers({ name: d }) : 'Which student?';
     const map = { counselors: ['counselors', {}], pipeline: ['pipeline', {}], tasks: ['tasks', {}], inbox: ['inbox', {}], history: ['activity', {}],
       agenda: ['agenda', { day: /tomorrow/i.test(d) ? 'tomorrow' : /week|7|seven/i.test(d) ? 'week' : 'today' }] };
     const m = map[what]; if (!m) return 'I cannot pull that up yet.';
@@ -1122,11 +1143,27 @@ const CARD = {
         <dl class="kv"><dt>Where they are</dt><dd>${esc(r.w)}</dd><dt>Counselor</dt><dd>${esc(r.o)}</dd><dt>In this stage</dt><dd>${daysIn(r) ?? '–'} days</dd>
         <dt>Submitted</dt><dd>${r.sub ? 'Yes' + (r.sa ? ', ' + esc(r.sa) : '') : 'No'}</dd><dt>Steps done</dt><dd>${[r.cat4 ? 'CAT4' : '', r.itep ? 'iTEP' : '', r.int ? 'Interview' : ''].filter(Boolean).join(', ') || 'None yet'}</dd>
         ${fu ? `<dt>Next step</dt><dd><span class="chip ${fu.who === 'team' ? 'info' : 'watch'}">${esc(fu.rl)}</span>${fu.stalled ? ' <span class="chip bad">stalled</span>' : ''}</dd>` : ''}</dl>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">${link ? `<a class="pill sm primary" target="_blank" rel="noopener" href="${esc(link)}">Open in HEIApply</a>` : ''}${fu ? '<button class="pill sm" data-pdone>Mark follow-up done</button>' : ''}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">${link ? `<a class="pill sm primary" target="_blank" rel="noopener" href="${esc(link)}">Open in HEIApply</a>` : ''}<button class="pill sm" data-pull="answers|${enc({ id: r.id || r.n })}">Application answers</button>${fu ? '<button class="pill sm" data-pdone>Mark follow-up done</button>' : ''}</div>
         <p class="src">No scores are shown or spoken. Export of ${esc(apps().asof)}.</p>`;
     },
     bind(el, { id }) { const b = el.querySelector('[data-pdone]'), r = appById(id); if (b && r) b.onclick = () => { bg('pulse_request', { app_id: r.id, name: r.n, kind: 'done', text: 'Marked done from Jarvis' }, 'Pulse: done for ' + r.n, { icon: 'pulse' }); b.textContent = 'Sent to the Pulse'; b.disabled = true; }; },
-    suggest({ id }) { const r = appById(id); return r ? [{ label: (r.o === meName() ? 'My' : firstName(r.o) + "'s") + ' follow-ups', type: 'followups', args: { who: r.o, reason: '' } }, { label: 'Pipeline', type: 'pipeline', args: {} }] : []; }
+    suggest({ id }) { const r = appById(id); return r ? [{ label: 'Their application answers', type: 'answers', args: { id } }, { label: (r.o === meName() ? 'My' : firstName(r.o) + "'s") + ' follow-ups', type: 'followups', args: { who: r.o, reason: '' } }] : []; }
+  },
+  answers: {
+    kicker: 'Application', w: 460,
+    title({ id }) { const r = appById(id); return (r ? r.n : 'Applicant') + ' · answers'; },
+    body({ id, q }) {
+      const d = S.det[id];
+      if (!d || d.p) { loadDet(id).then(() => refreshCard('answers', { id, q })); return '<div class="empty">Opening the application…</div>'; }
+      if (d.err) return emptyBox(d.err);
+      const short = d.fields.filter(f => f[0].length <= QA_SHORT && f[1].length <= 120), long = d.fields.filter(f => !(f[0].length <= QA_SHORT && f[1].length <= 120));
+      const words = String(q || '').toLowerCase().split(/\W+/).filter(w => w.length > 3);
+      const hit = f => words.length && words.some(w => (f[0] + ' ' + f[1]).toLowerCase().includes(w));
+      return `${long.length ? long.map(f => `<div class="qa${hit(f) ? ' hit' : ''}"><div class="qq"${dirAttr(f[0])}>${esc(f[0])}</div><div class="qv"${dirAttr(f[1])}>${esc(f[1])}</div></div>`).join('') : '<div class="empty">No written answers yet.</div>'}
+        <details class="qd"><summary>Profile details (${short.length})</summary><dl class="kv">${short.map(f => `<dt>${esc(f[0])}</dt><dd${dirAttr(f[1])}>${esc(f[1])}</dd>`).join('')}</dl></details>
+        <p class="src">From the HEIApply export of ${esc(d.asof)}. Scores, financial aid and household finance answers, religion, ID numbers and street address are left out.</p>`;
+    },
+    suggest({ id }) { const r = appById(id); return r ? [{ label: 'Where they are in the process', type: 'applicant', args: { id } }, { label: (r.o === meName() ? 'My' : firstName(r.o) + "'s") + ' follow-ups', type: 'followups', args: { who: r.o, reason: '' } }] : []; }
   },
   agenda: {
     kicker: 'Calendar', w: 340,
@@ -1171,6 +1208,17 @@ const CARD = {
     }
   }
 };
+S.det = {};
+async function loadDet(id) {
+  if (S.det[id] && S.det[id].fields) return S.det[id];
+  if (S.det[id] && S.det[id].p) return S.det[id].p;
+  const t0 = performance.now();
+  const pr = api('applicant_detail', { id }, { timeout: 30000 }).then(j => { perf('applicant detail', performance.now() - t0); S.det[id] = j && j.ok ? j : { err: (j && j.message) || 'Not found.' }; return S.det[id]; })
+    .catch(e => (S.det[id] = { err: e.message }));
+  S.det[id] = { p: pr }; return pr;
+}
+const QA_SHORT = 70;
+function refreshCard(type, args) { const key = type + ':' + JSON.stringify(args), c = ST.cards.find(x => x.key === key), el = c && document.getElementById(c.id); if (el) { el.querySelector('.bd').innerHTML = cardBody(CARD[type], args); CARD[type].bind?.(el, args); } }
 function appById(id) { const ix = apps().index || []; return ix.find(r => r.id === id) || ix.find(r => r.n === id); }
 function cardBody(def, args) { try { return def.body(args); } catch (e) { return emptyBox('Could not show this: ' + e.message); } }
 
