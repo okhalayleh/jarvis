@@ -136,5 +136,52 @@
       "CAT4 taken"
     ]
   ],
-  "rules_note": "Counts use the Pulse rules: new applicants only (numeric ID), CAT4 pass = average 8.5 or higher. No scores are shown or spoken."
+  "rules_note": "Counts use the Pulse rules: new applicants only (numeric ID), CAT4 pass = average 8.5 or higher. No scores are shown or spoken.",
+  "autopilot": [
+    {
+      "t": "06:00",
+      "label": "Jarvis learns this week's applicant names",
+      "days": [
+        0
+      ],
+      "color": "#e6e4ff"
+    },
+    {
+      "t": "07:00",
+      "label": "Job runner: reports and Pulse marks",
+      "every": "hourly to 22:00",
+      "color": "#a9a6ff"
+    },
+    {
+      "t": "07:47",
+      "label": "Team-approved family replies go out",
+      "every": "hourly to 15:47",
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "color": "#ff8fa8"
+    },
+    {
+      "t": "08:30",
+      "label": "Pulse refresh (office computer)",
+      "color": "#a9a6ff"
+    },
+    {
+      "t": "09:00",
+      "label": "Todd's weekly report in your Drafts",
+      "days": [
+        0
+      ],
+      "color": "#ffd59a"
+    },
+    {
+      "t": "12:00",
+      "label": "Inbox filed into folders",
+      "color": "#8fe3ff"
+    }
+  ]
 }
