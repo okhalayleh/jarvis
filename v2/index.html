@@ -279,6 +279,10 @@ body.staged{overflow:hidden}
 .cr .cb i{position:absolute;left:0;top:0;bottom:0;border-radius:6px;background:var(--brand)}.cr .cb i.f{background:var(--brand2);top:3px;bottom:3px}
 .cr .cv{text-align:right}.cr .cv b{font:600 20px var(--f-display)}
 .fc .transcript{max-height:260px}
+.vg{margin:4px 0 10px}.vgr{display:grid;grid-template-columns:minmax(90px,38%) 1fr 34px;align-items:center;gap:8px;width:100%;padding:5px 2px;border:0;background:none;color:inherit;text-align:left;cursor:pointer;font:inherit;font-size:13px}
+.vgr i{height:8px;border-radius:4px;background:var(--brand);display:block;min-width:3px}.vgr:hover i{background:var(--brand2)}.vgr b{text-align:right;font-size:13px}.vgr span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vt{max-height:340px;overflow:auto;border:1px solid var(--line);border-radius:10px}.vt table{border-collapse:collapse;width:100%;font-size:12.5px}.vt th{position:sticky;top:0;background:var(--brand);color:#fff;text-align:left;padding:6px 8px;font-weight:600;white-space:nowrap}
+.vt td{padding:6px 8px;border-top:1px solid var(--line);vertical-align:top;max-width:220px;overflow:hidden;text-overflow:ellipsis}.vt .lnk{border:0;background:none;color:var(--brand);font:inherit;padding:0;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px}
 .qa{padding:10px 0;border-bottom:1px solid var(--line)}.qa:last-of-type{border-bottom:0}
 .qa .qq{font-size:12px;color:var(--ink3);margin-bottom:4px;line-height:1.4}
 .qa .qv{font-size:14px;line-height:1.55;white-space:pre-wrap}
@@ -379,7 +383,7 @@ body.staged{overflow:hidden}
 /* =====================================================================
    JARVIS CORE  (no school names, data or brand in here: those come from the pack)
    ===================================================================== */
-const VERSION = '2.2.1';
+const VERSION = '2.3.0';
 const SDK_URL = 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.36.1/+esm';
 const PACK_ID = new URLSearchParams(location.search).get('pack') || 'manara';
 const TZ = 'Africa/Cairo';
@@ -538,6 +542,8 @@ function findPeople(q, needPhone) {
   return hits.filter(h => h.sc === hits[0].sc && h.o === hits[0].o).slice(0, 4).map(h => h.x);
 }
 function findApplicants(q) {
+  const qid = String(q || '').replace(/\s+/g, '').toUpperCase();
+  if (/\d{3,}/.test(qid)) { const byId = (apps().index || []).filter(r => String(r.id || '').toUpperCase() === qid || String(r.sid || '') === qid); if (byId.length) return byId; }
   const t = toks(q).filter(w => !['the', 'file', 'application', 'applicant', 'student'].includes(w));
   if (!t.length) return [];
   return (apps().index || []).filter(r => { const h = String(r.n || '').toLowerCase(); return t.every(w => h.includes(w)); });
@@ -653,6 +659,38 @@ const TOOLS = {
     let out = [], n = 0; for (const x of f) { const v = x[1].length > 1500 ? x[1].slice(0, 1500) + '…' : x[1]; n += x[0].length + v.length; if (n > 9000) break; out.push({ question: x[0], answer: v }); }
     return J({ student: r.n, grade: r.g, export_date: d.asof, on_screen: true, answers: out, offer: shown?.offer || '',
       rule: 'Summarise what they wrote in one or two sentences; quote a short phrase if useful. Do not rate or judge the applicant or suggest a decision. Scores and financial information are not available to you.' });
+  },
+  async view(p) {
+    const spec = { title: p.title || '', counselor: p.counselor || '', followups_only: p.followups_only ? 'true' : '', scope: p.scope || 'new', filters: p.filters || '', group_by: p.group_by || '', sort_by: p.sort_by || '', order: p.order || '', show: p.show || '' };
+    const t0 = performance.now(), j = await runView(spec);
+    perf('tool view', performance.now() - t0, j && j.ms ? 'server ' + j.ms + ' ms' : '');
+    if (!j || !j.ok) return J({ ok: false, note: (j && j.message) || 'The view failed.', close_fields: j && j.close_fields, fields_sample: j && j.all_fields_sample && j.all_fields_sample.slice(0, 40), tip: 'Try again with one of these field names.' });
+    const nameCol = j.columns.indexOf('Name');
+    return J({ on_screen: true, export_date: j.asof, scope: j.scope, base: j.base, matching: j.total, conditions: j.conditions.map(c => c.field + ' ' + c.op + ' ' + c.value),
+      groups: j.groups ? j.groups.slice(0, 8).map(g => g[0] + ': ' + g[1]) : undefined, first_names: j.total <= 6 && nameCol >= 0 ? j.rows.map(r => r[nameCol]) : undefined,
+      rule: 'The table is on Omar\'s screen. Say the count and, if grouped, the top one or two groups, in one sentence. Do not read the list. Never give scores.' });
+  },
+  async meeting_prep({ person, purpose }) {
+    const t0 = performance.now(), a = apps(), who = String(person || '').trim(), first = who.split(/\s+/)[0] || '';
+    const pp = who ? findPeople(who)[0] : null;
+    const q = pp && pp.e ? `(from:${pp.e} OR to:${pp.e}) newer_than:14d` : (who ? `"${who}" newer_than:14d` : 'newer_than:7d is:important');
+    const mail = await api('find_email', { query: q }, { timeout: 20000 }).catch(() => null);
+    const now = Date.now(), soon = events().filter(e => e.e > now && e.s < now + 14 * 864e5);
+    const withThem = first ? soon.filter(e => (e.t || '').toLowerCase().includes(first.toLowerCase())) : [];
+    const mine = fuList({ name: meName() }, ''), all = a.followups || [];
+    const F = a.funnel || {}, fc = a.followup_counts || {};
+    perf('tool meeting_prep', performance.now() - t0);
+    return J({
+      purpose: purpose || '', person: pp ? { name: pp.n, email: pp.e || '', title: pp.ti || '' } : who,
+      pipeline: a.funnel ? { export_date: a.asof, day_of_cycle: a.day_of_cycle, inquiries: F.inquiries, submitted: F.submitted, submit_rate_pct: a.rates?.submit_rate, awaiting_phase1_review: F.awaiting_phase1_review, cleared_for_cat4: F.cleared_for_cat4, cat4_taken: F.cat4_taken, pace_now: a.pace_now, by_grade: a.grades } : 'not loaded',
+      followups: { team_total: all.length, by_reason: fc, stalled_2_weeks: all.filter(f => f.stalled).length, team_to_act: all.filter(f => f.who === 'team').length, omar_own: mine.length },
+      next_14_days: soon.slice(0, 14).map(e => e.t + ' · ' + cairoDay(new Date(e.s)) + ' ' + cairoHM(new Date(e.s))), meetings_with_them: withThem.map(e => e.t + ' · ' + cairoDay(new Date(e.s)) + ' ' + cairoHM(new Date(e.s))),
+      key_dates: (S.pack?.key_dates || []).slice(0, 8),
+      open_tasks: tasksOpen().filter(t => t.pri || t.over || (first && t.t.toLowerCase().includes(first.toLowerCase()))).slice(0, 10).map(t => t.t + (t.due ? ' (due ' + t.due + ')' : '')),
+      recent_emails: ((mail && mail.threads) || []).slice(0, 8).map(t => ({ from: t.from, subject: t.subject, when: t.date, preview: t.preview })),
+      omar_notes: (sec('mem').notes || []).slice(-15),
+      how_to_use: 'Decide the agenda yourself: pick the 3 to 5 points that matter most this week from the numbers, the stalled and team-side follow-ups, deadlines, open decisions in the emails and his priority tasks. Lead with the point that needs the other person\'s decision or help. Write it in Omar\'s voice (warm, brief, mission first), save it as a draft, then tell Omar in one sentence what you chose. No student names in emails to others unless Omar asks; never scores or aid figures.'
+    });
   },
   async pull_up({ what, detail }) {
     const d = String(detail || '').trim();
@@ -1086,7 +1124,8 @@ const STARTERS = () => [
   { label: "Today's meetings", type: 'agenda', args: { day: 'today' } },
   { label: 'My follow-ups', type: 'followups', args: { who: meName(), reason: '' } },
   { label: 'Pipeline', type: 'pipeline', args: {} },
-  { label: 'Top tasks', type: 'tasks', args: {} }
+  { label: 'Top tasks', type: 'tasks', args: {} },
+  { label: 'New this week, by governorate', view: { title: 'New applicants, last 7 days, by governorate', scope: 'new', filters: 'Date created | last_days | 7', group_by: 'governorate', counselor: '', followups_only: '', sort_by: '', order: '', show: '' } }
 ];
 function meName() {
   const names = Object.keys(apps().owners || {}), full = (S.pack?.owner_full || '').toLowerCase(), first = (S.pack?.owner || 'Omar').toLowerCase();
@@ -1216,6 +1255,35 @@ const CARD = {
     body(m) { return m.kind === 'wa' ? `<div class="wa"${dirAttr(m.text)}>${esc(m.text)}</div><a class="pill sm primary" style="margin-top:10px" target="_blank" rel="noopener" href="${esc(m.link)}">Open in WhatsApp</a><p class="src">Not sent. You tap to send.</p>`
       : `<div class="mail"><div class="mh">${esc(m.subject)}</div><div class="mb"${dirAttr(m.body)}>${esc(m.body)}</div></div><p class="src">Saved in Gmail drafts, not sent.</p>`; }
   },
+  view: {
+    kicker: 'View', w: 600,
+    title({ vid }) { const v = S.views[vid]; return v ? v.title : 'View'; },
+    body({ vid }) {
+      const v = S.views[vid]; if (!v) return emptyBox('This view was from an earlier session. Ask Jarvis again.');
+      const conds = v.conditions.map(c => `${c.field} ${OP_WORDS[c.op] || c.op} ${c.value}${c.op === 'last_days' ? ' days' : ''}`).join(' · ');
+      const maxG = v.groups ? Math.max(1, ...v.groups.map(g => g[1])) : 1;
+      const nameCol = v.columns.indexOf('Name');
+      const grp = v.groups ? `<div class="vg">${v.groups.slice(0, 16).map(g => `<button class="vgr" data-drill="${enc({ vid, val: g[0] })}"><span${dirAttr(g[0])}>${esc(g[0])}</span><i style="width:${Math.round(100 * g[1] / maxG)}%"></i><b class="num">${g[1]}</b></button>`).join('')}${v.groups.length > 16 ? `<p class="src">${v.groups.length - 16} more groups in the sheet.</p>` : ''}</div>` : '';
+      const tbl = v.rows.length ? `<div class="vt"><table><thead><tr>${v.columns.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${v.rows.slice(0, 120).map((r, i) => `<tr>${r.map((x, k) => k === nameCol && v.ids[i] ? `<td><button class="lnk" data-pull="applicant|${enc({ id: v.ids[i] })}"${dirAttr(x)}>${esc(x)}</button></td>` : `<td${dirAttr(x)}>${esc(x)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>${v.rows.length > 120 ? `<p class="src">Showing 120 of ${v.total}. Open as a sheet for all.</p>` : ''}` : emptyBox('No applicants match.');
+      return `<div class="card-k"><div><b class="num">${v.total}</b><span>match</span></div><div><b class="num">${v.base}</b><span>${esc(v.scope)}</span></div>${v.groups ? `<div><b class="num">${v.groups.length}</b><span>groups</span></div>` : ''}</div>
+        ${conds ? `<div class="muted" style="font-size:12.5px;margin:2px 0 8px">${esc(conds)}</div>` : ''}${grp}${tbl}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${v.url ? `<a class="pill sm primary" target="_blank" rel="noopener" href="${esc(v.url)}">Open the sheet</a>` : '<button class="pill sm" data-sheet>Open as a Google Sheet</button>'}</div>
+        <p class="src">${esc(v.rule)}</p>`;
+    },
+    bind(el, { vid }) {
+      const v = S.views[vid]; if (!v) return;
+      el.querySelectorAll('[data-drill]').forEach(b => b.onclick = () => { const d = JSON.parse(decodeURIComponent(b.dataset.drill)); const sp = Object.assign({}, v.spec, { filters: (v.spec.filters ? v.spec.filters + '\n' : '') + v.group_by + ' | ' + (d.val === '(blank)' ? 'empty' : 'is') + ' | ' + (d.val === '(blank)' ? '' : d.val), group_by: '', title: v.title + ' · ' + d.val }); runView(sp, 'tap'); });
+      const sb = el.querySelector('[data-sheet]'); if (sb) sb.onclick = async () => { sb.disabled = true; sb.textContent = 'Making the sheet…'; const j = await api('query', Object.assign({}, v.spec, { sheet: 'true' }), { timeout: 60000 }).catch(e => ({ ok: false, message: e.message })); if (j && j.url) { v.url = j.url; refreshView(vid); window.open(j.url, '_blank'); } else { sb.textContent = 'Could not make the sheet'; banner((j && (j.sheet_error || j.message)) || 'The sheet failed.'); } };
+    },
+    suggest({ vid }) {
+      const v = S.views[vid]; if (!v) return [];
+      const out = [];
+      if (v.group_by !== 'Counselor' && v.spec.counselor === '') out.push({ label: 'Same, by counselor', view: Object.assign({}, v.spec, { group_by: 'counselor', title: v.title + ' · by counselor' }) });
+      if (v.group_by !== 'Grade applying for') out.push({ label: 'Same, by grade', view: Object.assign({}, v.spec, { group_by: 'grade', title: v.title + ' · by grade' }) });
+      if (!v.spec.followups_only) out.push({ label: 'Only my follow-ups', view: Object.assign({}, v.spec, { counselor: 'me', followups_only: 'true', title: v.title + ' · my follow-ups' }) });
+      return out;
+    }
+  },
   activity: {
     kicker: 'This session', w: 360, title: () => 'What we did',
     body() {
@@ -1225,6 +1293,13 @@ const CARD = {
     }
   }
 };
+S.views = {};
+async function runView(spec, from) {
+  const j = await api('query', spec, { timeout: 40000 }).catch(e => ({ ok: false, message: e.message }));
+  if (j && j.ok) { const vid = 'v' + Date.now().toString(36); S.views[vid] = Object.assign({ spec }, j); const ks = Object.keys(S.views); if (ks.length > 12) delete S.views[ks[0]]; pull('view', { vid }, from); }
+  return j;
+}
+const OP_WORDS = { is: 'is', is_not: 'is not', contains: 'contains', not_contains: 'does not contain', in: 'is one of', not_in: 'is not one of', empty: 'is empty', not_empty: 'is filled in', last_days: 'in the last', before: 'before', after: 'after', on: 'on', between: 'between', '>': '>', '<': '<', '>=': '≥', '<=': '≤' };
 S.det = {};
 async function loadDet(id) {
   if (S.det[id] && S.det[id].fields) return S.det[id];
@@ -1237,6 +1312,7 @@ async function loadDet(id) {
 const QA_SHORT = 70;
 function refreshCard(type, args) { const key = type + ':' + JSON.stringify(args), c = ST.cards.find(x => x.key === key), el = c && document.getElementById(c.id); if (el) { el.querySelector('.bd').innerHTML = cardBody(CARD[type], args); CARD[type].bind?.(el, args); } }
 function appById(id) { const ix = apps().index || []; return ix.find(r => r.id === id) || ix.find(r => r.n === id); }
+function refreshView(vid) { const c = ST.cards.find(x => x.key === 'view:' + JSON.stringify({ vid })), el = c && document.getElementById(c.id); if (el) { el.querySelector('.bd').innerHTML = cardBody(CARD.view, { vid }); CARD.view.bind(el, { vid }); } }
 function cardBody(def, args) { try { return def.body(args); } catch (e) { return emptyBox('Could not show this: ' + e.message); } }
 
 /* ----- opening and closing the stage ----- */
@@ -1288,7 +1364,7 @@ function pull(type, args = {}, from) {
     const max = phone() ? 5 : 7; while (ST.cards.length > max) removeCard(ST.cards[0].id, true);
     layoutBusy(); mountCard(c);
   }
-  ST.sugg = (def.suggest ? def.suggest(args) : []).filter(s => s.job || !ST.cards.some(x => x.key === s.type + ':' + JSON.stringify(s.args || {}))).slice(0, 3);
+  ST.sugg = (def.suggest ? def.suggest(args) : []).filter(s => s.job || s.view || !ST.cards.some(x => x.key === s.type + ':' + JSON.stringify(s.args || {}))).slice(0, 3);
   paintSugg();
   if (from === 'tap' && S.conv) ctx(`System note: Omar opened "${def.title(args)}" on screen himself. Do not read it out; just be ready for questions about it.`);
   return { card: def.title(args), offer: ST.sugg[0] ? ST.sugg[0].label : '' };
@@ -1370,7 +1446,7 @@ function paintSugg() {
   const el = $('#sugg'); if (!el) return;
   const list = ST.cards.length ? ST.sugg : STARTERS();
   el.innerHTML = list.length ? `<div class="lab">${ST.cards.length ? 'Also pull up?' : 'Try'}</div>` + list.map((s, i) => `<button data-s="${i}">${esc(s.label)}</button>`).join('') : '';
-  el.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { const s = list[+b.dataset.s]; if (s.job) { runJob(s.job, ''); ST.sugg = ST.sugg.filter(x => x !== s); paintSugg(); } else pull(s.type, s.args || {}, 'tap'); });
+  el.querySelectorAll('[data-s]').forEach(b => b.onclick = () => { const s = list[+b.dataset.s]; if (s.job) { runJob(s.job, ''); ST.sugg = ST.sugg.filter(x => x !== s); paintSugg(); } else if (s.view) { b.disabled = true; runView(s.view, 'tap'); } else pull(s.type, s.args || {}, 'tap'); });
 }
 function paintTranscript() { paintCaption(); }
 function paintActions() {
