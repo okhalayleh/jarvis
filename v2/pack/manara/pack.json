@@ -2,6 +2,7 @@
   "id": "manara",
   "name": "Manara School",
   "owner": "Omar",
+  "owner_full": "Omar Khalayleh",
   "assistant": "Jarvis",
   "wake_words": [
     "jarvis"
