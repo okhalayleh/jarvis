@@ -347,6 +347,122 @@ body.staged{overflow:hidden}
 .sheet a svg{width:20px;height:20px;color:var(--brand)}
 .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 8px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* ===== Command deck (2.4): thread orb, desks, autopilot dial ===== */
+.stg .orb>*{opacity:0!important}
+.stg .orb{background:transparent!important;box-shadow:none!important;border-radius:50%}
+.stg .orb:focus-visible{outline:2px solid rgba(255,255,255,.5);outline-offset:6px}
+#sky{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+.stg:not(.busy) .board{pointer-events:none}
+.desks{position:absolute;inset:calc(60px + var(--safe-t)) 18px 16px;display:grid;grid-template-columns:minmax(250px,1fr) minmax(380px,1.15fr) minmax(250px,1fr);grid-template-rows:auto minmax(0,1fr) minmax(0,1fr) auto;gap:14px;z-index:2;
+  transition:opacity .5s ease,transform .5s ease;pointer-events:none}
+.desks>*{pointer-events:auto}
+.stg:not(.cmd) .desks{opacity:0;transform:scale(.975)}
+.stg:not(.cmd) .desks>*{pointer-events:none}
+.dk{--a:#a9a6ff;position:relative;background:linear-gradient(180deg,rgba(22,20,58,.78),rgba(12,11,32,.72));border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:11px 13px 12px;
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);display:flex;flex-direction:column;min-height:0;overflow:hidden;color:#fff;animation:dkIn .6s cubic-bezier(.2,.8,.2,1) both}
+.dk::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:linear-gradient(90deg,var(--a),transparent 70%);opacity:.8}
+.dk:hover{border-color:rgba(255,255,255,.24)}
+.dk .dh{display:flex;align-items:center;gap:8px;font:600 10px var(--f-mono);letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.72);margin-bottom:8px;flex:none}
+.dk .code{padding:2px 6px;border-radius:5px;background:var(--a);color:#15132f;letter-spacing:.6px}
+.dk .open{margin-left:auto;border:0;background:none;color:rgba(255,255,255,.55);font:600 10px var(--f-mono);letter-spacing:1.2px;cursor:pointer;padding:2px 0}
+.dk .open:hover{color:#fff}
+.dk .live{display:inline-flex;align-items:center;gap:5px;color:var(--a)}
+.dk .live i{width:6px;height:6px;border-radius:50%;background:var(--a);box-shadow:0 0 8px var(--a);animation:blink 2.2s ease-in-out infinite}
+.dk .bd2{overflow:auto;min-height:0;flex:1;scrollbar-width:thin}
+.dk .big{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.dk .big div{background:rgba(255,255,255,.05);border-radius:9px;padding:6px 8px;min-width:0}
+.dk .big b{display:block;font:600 20px var(--f-display);line-height:1.15}
+.dk .big span{display:block;font-size:10px;color:rgba(255,255,255,.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk .big em{font-style:normal;font:600 10px var(--f-mono);color:var(--a)}
+.dk .sub{font:500 10px var(--f-mono);letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5);margin:6px 0 4px}
+.dk .spark{width:100%;height:46px;display:block}
+.dk .row2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;width:100%;padding:6px 6px;border:0;background:none;color:#fff;text-align:left;cursor:pointer;border-radius:8px;font:inherit;font-size:12.5px}
+.dk .row2:hover{background:rgba(255,255,255,.07)}
+.dk .row2 span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk .row2 small{display:block;color:rgba(255,255,255,.55);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dk .row2 b{font:600 12px var(--f-mono)}
+.dk .bar{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) 26px;gap:8px;align-items:center;width:100%;padding:4px 6px;border:0;background:none;color:#fff;text-align:left;cursor:pointer;border-radius:7px;font:inherit;font-size:12px}
+.dk .bar:hover{background:rgba(255,255,255,.07)}
+.dk .bar span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:rgba(255,255,255,.85)}
+.dk .bar i{height:6px;border-radius:3px;background:var(--a);display:block;min-width:3px;box-shadow:0 0 10px color-mix(in srgb,var(--a) 60%,transparent)}
+.dk .bar b{font:600 12px var(--f-mono);text-align:right}
+.dk .chip2{display:inline-flex;align-items:center;gap:5px;font:600 10px var(--f-mono);letter-spacing:.6px;padding:3px 7px;border-radius:999px;background:rgba(255,255,255,.08);color:#fff;white-space:nowrap}
+.dk .chip2.hot{background:color-mix(in srgb,var(--brand2) 75%,transparent)}
+.dk .delta{font:600 10.5px var(--f-mono);color:var(--a);margin-top:4px}
+.dk .act{border:1px solid color-mix(in srgb,var(--a) 70%,transparent);background:color-mix(in srgb,var(--a) 14%,transparent);color:#fff;border-radius:999px;padding:4px 10px;font:600 11px var(--f-body);cursor:pointer;white-space:nowrap}
+.dk .act:hover{background:color-mix(in srgb,var(--a) 30%,transparent)}
+.dk .muted2{color:rgba(255,255,255,.5);font-size:12px}
+#dk-adm{grid-column:1;grid-row:1/3;--a:#a9a6ff}
+#dk-fu{grid-column:1;grid-row:3/5;--a:#ff8fa8;animation-delay:.08s}
+#dk-cal{grid-column:2;grid-row:1;--a:#ffd59a;animation-delay:.04s}
+#dk-inbox{grid-column:3;grid-row:1/3;--a:#8fe3ff;animation-delay:.12s}
+#dk-today{grid-column:3;grid-row:3/5;--a:#e6e4ff;animation-delay:.16s}
+#dk-stats{grid-column:2;grid-row:4;align-self:end;background:none;border:0;padding:0;backdrop-filter:none;-webkit-backdrop-filter:none;overflow:visible}
+#dk-stats::before{display:none}
+.statrow{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;text-align:center}
+.statrow div{padding:2px 4px}
+.statrow b{display:block;font:600 22px var(--f-display);text-shadow:0 0 18px rgba(169,166,255,.55)}
+.statrow span{display:block;font:500 9.5px var(--f-mono);letter-spacing:1.1px;text-transform:uppercase;color:rgba(255,255,255,.55);line-height:1.3}
+.statrow .zero b{color:#9ff0c0;text-shadow:0 0 18px rgba(120,240,170,.5)}
+/* calendar ruler */
+.ruler{position:relative;height:58px;margin:2px 0 4px}
+.ruler .ev{position:absolute;top:0;height:40px;border-radius:7px;background:color-mix(in srgb,var(--brand2) 72%,transparent);border:1px solid rgba(255,160,180,.45);padding:3px 6px;overflow:hidden;cursor:pointer;min-width:6px}
+.ruler .ev.past{opacity:.38}
+.ruler .ev.next{box-shadow:0 0 0 1px #ffd59a,0 0 18px rgba(255,213,154,.45)}
+.ruler .ev b{display:block;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ruler .ev small{display:block;font:500 9.5px var(--f-mono);opacity:.75;white-space:nowrap}
+.ruler .tk{position:absolute;bottom:0;font:500 9px var(--f-mono);color:rgba(255,255,255,.45);transform:translateX(-50%)}.ruler .tk.f{transform:none}.ruler .tk.l{transform:translateX(-100%)}
+.ruler .now{position:absolute;top:-2px;bottom:12px;width:2px;background:#ffd59a;box-shadow:0 0 10px #ffd59a;border-radius:1px}
+.nextm{display:flex;align-items:center;gap:10px;font-size:12.5px;margin-top:2px}
+.nextm .t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* brief line under the orb */
+.brief{display:none;margin-top:10px;max-width:440px;text-align:center;font-size:13px;line-height:1.5;color:rgba(255,255,255,.82)}
+.stg.cmd .brief{display:block}
+.brief button{margin-top:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:6px 14px;font:600 12px var(--f-body);cursor:pointer}
+.brief button:hover{background:rgba(255,255,255,.16)}
+.stg.cmd .sugg{display:none}
+.stg.cmd .dock{top:51%;width:min(36vw,440px)}
+.stg.cmd .orb{width:min(24vw,240px);height:min(24vw,240px)}
+/* autopilot */
+.apx{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .5s}
+.stg.auto .apx{opacity:1}
+.stg.auto .apx .ap-l,.stg.auto .apx .ap-top,.stg.auto .apx .ap-foot{pointer-events:auto}
+.ap-top{position:absolute;left:50%;top:calc(58px + var(--safe-t));transform:translateX(-50%);text-align:center}
+.ap-top .k{font:600 10.5px var(--f-mono);letter-spacing:2px;color:rgba(255,255,255,.6)}
+.ap-top .clk{font:700 46px var(--f-display);letter-spacing:1px;text-shadow:0 0 26px rgba(169,166,255,.6);line-height:1.1}
+.ap-top .s{font:500 10px var(--f-mono);letter-spacing:1.3px;color:rgba(255,255,255,.5);text-transform:uppercase}
+.ap-top button{margin-top:8px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;border-radius:999px;padding:5px 13px;font:600 11.5px var(--f-body);cursor:pointer}
+.ap-l{position:absolute;transform:translate(-50%,-50%);font-size:11.5px;line-height:1.3;color:rgba(255,255,255,.88);white-space:nowrap;text-align:center;transition:opacity .3s,color .3s}
+.ap-l small{display:block;font:600 9.5px var(--f-mono);letter-spacing:.8px;color:var(--c,#a9a6ff)}
+.ap-l.done{opacity:.45}
+.ap-l.lit{color:#fff;text-shadow:0 0 12px var(--c,#a9a6ff)}
+.ap-l.ev small{color:#ff9fb2}
+.ap-foot{position:absolute;left:50%;bottom:calc(16px + var(--safe-b));transform:translateX(-50%);text-align:center;font-size:11.5px;color:rgba(255,255,255,.55);max-width:92vw}
+.stg.auto .dock{top:53%}
+.stg.auto .dock .state,.stg.auto .dock .cap,.stg.auto .dock .brief,.stg.auto .dock .ticker,.stg.auto .dock .typebar,.stg.auto .dock .sugg{display:none}
+.stg.auto .orb{width:min(26vw,210px);height:min(26vw,210px)}
+#sauto.on{background:rgba(255,213,154,.22);border-color:rgba(255,213,154,.6)}
+@keyframes blink{50%{opacity:.35}}
+@keyframes dkIn{from{opacity:0;transform:translateY(10px) scale(.98)}}
+@media (max-width:1180px) and (min-width:901px){.desks{grid-template-columns:minmax(220px,1fr) minmax(320px,1.05fr) minmax(220px,1fr)}.dk .big{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:900px){
+  .stg.cmd{overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+  .stg.cmd .dock{order:0}.stg.cmd .desks{order:1}
+  .stg.cmd .dock{position:relative;left:auto;top:auto;transform:none;width:auto;margin:calc(84px + var(--safe-t)) auto 0;padding:0 14px}
+  .stg.cmd .orb{width:200px;height:200px}
+  .stg.cmd #sky{position:fixed}
+  .desks{position:relative;inset:auto;display:flex;flex-direction:column;gap:12px;padding:16px 12px calc(28px + var(--safe-b))}
+  .stg:not(.cmd) .desks{display:none}
+  #dk-stats{order:-1;margin:0}
+  #dk-cal{order:0}#dk-fu{order:1}#dk-adm{order:2}#dk-inbox{order:3}#dk-today{order:4}
+  .dk .bd2{max-height:none;overflow:visible}
+  .statrow b{font-size:19px}
+  .stg.auto .dock{top:45%}
+  .stg.auto .orb{width:140px;height:140px}
+  .ap-top .clk{font-size:36px}
+  .ap-l{font-size:10px}
+}
+
 </style>
 </head>
 <body>
@@ -383,7 +499,7 @@ body.staged{overflow:hidden}
 /* =====================================================================
    JARVIS CORE  (no school names, data or brand in here: those come from the pack)
    ===================================================================== */
-const VERSION = '2.3.0';
+const VERSION = '2.4.0';
 const SDK_URL = 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.36.1/+esm';
 const PACK_ID = new URLSearchParams(location.search).get('pack') || 'manara';
 const TZ = 'Africa/Cairo';
@@ -490,6 +606,7 @@ function mergeSnap(j) {
   LS.set('snap', S.snap);
   if (typeof ST !== 'undefined' && ST.open) ST.cards.forEach(c => { const el = document.getElementById(c.id), d = CARD[c.type]; if (el && d && c.type !== 'message') { el.querySelector('.bd').innerHTML = cardBody(d, c.args); d.bind?.(el, c.args); } });
   if (typeof ST !== 'undefined' && ST.open && !ST.cards.length) paintSugg();
+  try { if (ST.open) paintDesks(); } catch (e) {}
 }
 function refresh(fresh) {
   if (!paired()) return Promise.resolve();
@@ -583,7 +700,7 @@ function addAction(a) { a.id = 'a' + Date.now() + Math.random().toString(36).sli
   if (a.wa) pull('message', { kind: 'wa', name: a.wa.name, text: a.wa.text, link: a.wa.link });
   if (a.mail) pull('message', { kind: 'mail', to: a.mail.to, subject: a.mail.subject, body: a.mail.body });
   return a.id; }
-function setAction(id, status, note) { const a = S.actions.find(x => x.id === id); if (a) { a.status = status; if (note) a.note = note; paintActions(); } }
+function setAction(id, status, note) { const a = S.actions.find(x => x.id === id); if (a) { a.status = status; if (note) a.note = note; paintActions(); if (status === 'done') try { bump('done'); } catch (e) {} } }
 function ctx(text) { try { S.conv && S.conv.sendContextualUpdate(text); } catch (e) {} }
 /* Write in the background: Jarvis has already answered; a failure shows a red banner and Jarvis is told. */
 function bg(action, params, label, act) {
@@ -753,7 +870,7 @@ const TOOLS = {
       if (!p.subject) return 'I need a subject.';
       bg('draft_email', { to: p.to, cc: p.cc || '', subject: p.subject, body }, 'Draft to ' + p.to, card);
     }
-    S.drafts.unshift({ at: Date.now(), to: p.to || 'reply', subject: p.subject || 'reply', body }); S.drafts = S.drafts.slice(0, 30); LS.set('drafts', S.drafts);
+    S.drafts.unshift({ at: Date.now(), to: p.to || 'reply', subject: p.subject || 'reply', body }); S.drafts = S.drafts.slice(0, 30); LS.set('drafts', S.drafts); try { bump('drafts'); } catch (e) {}
     return 'Saved in drafts, not sent.';
   },
   async whatsapp({ to, message }) {
@@ -1296,7 +1413,7 @@ const CARD = {
 S.views = {};
 async function runView(spec, from) {
   const j = await api('query', spec, { timeout: 40000 }).catch(e => ({ ok: false, message: e.message }));
-  if (j && j.ok) { const vid = 'v' + Date.now().toString(36); S.views[vid] = Object.assign({ spec }, j); const ks = Object.keys(S.views); if (ks.length > 12) delete S.views[ks[0]]; pull('view', { vid }, from); }
+  if (j && j.ok) { try { bump('views'); } catch (e) {} const vid = 'v' + Date.now().toString(36); S.views[vid] = Object.assign({ spec }, j); const ks = Object.keys(S.views); if (ks.length > 12) delete S.views[ks[0]]; pull('view', { vid }, from); }
   return j;
 }
 const OP_WORDS = { is: 'is', is_not: 'is not', contains: 'contains', not_contains: 'does not contain', in: 'is one of', not_in: 'is not one of', empty: 'is empty', not_empty: 'is filled in', last_days: 'in the last', before: 'before', after: 'after', on: 'on', between: 'between', '>': '>', '<': '<', '>=': '≥', '<=': '≤' };
@@ -1315,13 +1432,293 @@ function appById(id) { const ix = apps().index || []; return ix.find(r => r.id =
 function refreshView(vid) { const c = ST.cards.find(x => x.key === 'view:' + JSON.stringify({ vid })), el = c && document.getElementById(c.id); if (el) { el.querySelector('.bd').innerHTML = cardBody(CARD.view, { vid }); CARD.view.bind(el, { vid }); } }
 function cardBody(def, args) { try { return def.body(args); } catch (e) { return emptyBox('Could not show this: ' + e.message); } }
 
+/* =====================================================================
+   COMMAND DECK (2.4): the thread orb splits into five desks that work in
+   parallel; each desk is a live panel. Autopilot shows what runs on its own.
+   ===================================================================== */
+const DESKS = [
+  { id: 'adm', code: 'J-01', name: 'Admissions', rgb: [169, 166, 255] },
+  { id: 'fu', code: 'J-02', name: 'Follow-ups', rgb: [255, 143, 168] },
+  { id: 'cal', code: 'J-03', name: 'Calendar', rgb: [255, 213, 154] },
+  { id: 'inbox', code: 'J-04', name: 'Inbox', rgb: [143, 227, 255] },
+  { id: 'today', code: 'J-05', name: 'Today', rgb: [230, 228, 255] }
+];
+function ask(text) { if (S.conv) { try { S.conv.sendUserMessage(text); addMsg('user', text); S.session.userEnd = performance.now(); } catch (e) {} } else startTalk(text); }
+
+/* ----- counters for the trust strip (kept per day on this device) ----- */
+function dayStats() { const d = cairoISO(new Date()); let s = LS.get('dstats'); if (!s || s.d !== d) s = { d, done: 0, drafts: 0, views: 0 }; return s; }
+function bump(k) { const s = dayStats(); s[k] = (s[k] || 0) + 1; LS.set('dstats', s); paintStats(); }
+
+/* ----- "since you last looked" ----- */
+function lookNow() { const a = apps(), F = a.funnel || {}; return { at: Date.now(), inq: F.inquiries || 0, sub: F.submitted || 0, fu: fuList({ name: meName() }, '').length, mail: (sec('inbox').threads || []).length }; }
+S.lastLook = LS.get('lastLook');
+document.addEventListener('visibilitychange', () => { if (document.hidden && apps().funnel) LS.set('lastLook', lookNow()); });
+addEventListener('pagehide', () => { if (apps().funnel) LS.set('lastLook', lookNow()); });
+function since(k) { const p = S.lastLook; if (!p || Date.now() - p.at < 20 * 60000) return null; const d = lookNow()[k] - (p[k] || 0); return d; }
+function sinceLabel() { const p = S.lastLook; if (!p) return ''; const d = new Date(p.at); return cairoISO(d) === cairoISO(new Date()) ? 'since ' + cairoHM(d) : 'since ' + cairoDay(d); }
+const sgn = n => (n > 0 ? '+' : '') + n;
+
+/* ----- desk bodies ----- */
+function dkHead(d, extra) { return `<div class="dh"><span class="code">${d.code}</span><span>${esc(d.name)}</span>${extra || ''}<span class="live"><i></i>live</span></div>`; }
+function sparkNew() {
+  const ix = apps().index || [], days = [], today = cairoISO(new Date());
+  for (let i = 13; i >= 0; i--) days.push(cairoISO(new Date(Date.now() - i * 864e5)));
+  const n = days.map(d => ix.filter(r => r.ty === 'NEW' && r.c === d).length), max = Math.max(1, ...n), W = 300, H = 46;
+  const pts = n.map((v, i) => [i * W / 13, H - 4 - (v / max) * (H - 10)]);
+  const path = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  return { svg: `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none"><defs><linearGradient id="spg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#a9a6ff" stop-opacity=".45"/><stop offset="1" stop-color="#a9a6ff" stop-opacity="0"/></linearGradient></defs>
+    <path d="${path} L${W} ${H} L0 ${H} Z" fill="url(#spg)"/><path d="${path}" fill="none" stroke="#c9c6ff" stroke-width="1.6" vector-effect="non-scaling-stroke"/>${pts.map((p, i) => i === 13 ? `<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#fff"/>` : '').join('')}</svg>`, today: n[13], week: n.slice(7).reduce((a, b) => a + b, 0) };
+}
+const DESK_BODY = {
+  adm() {
+    const a = apps(), F = a.funnel; if (!F) return `<div class="muted2">${esc(a.message || 'Loading the newest HeiApply export…')}</div>`;
+    const di = since('inq'), ds = since('sub'), sp = sparkNew();
+    return `<div class="big"><div><b>${F.inquiries}</b><span>Inquiries</span>${di ? `<em>${sgn(di)}</em>` : ''}</div><div><b>${F.submitted}</b><span>Submitted</span>${ds ? `<em>${sgn(ds)}</em>` : ''}</div><div><b>${F.awaiting_phase1_review ?? '–'}</b><span>Phase I review</span></div><div><b>${F.cat4_taken ?? '–'}</b><span>CAT4 taken</span></div></div>
+      <div class="sub">New profiles a day · last 14 days</div>${sp.svg}
+      <div class="delta">${sp.today} today · ${sp.week} this week${di || ds ? ' · ' + esc(sinceLabel()) + ': ' + [di ? sgn(di) + ' inquiries' : '', ds ? sgn(ds) + ' submitted' : ''].filter(Boolean).join(', ') : ''}</div>
+      ${(() => { const ix = (apps().index || []).filter(r => r.ty === 'NEW'), g = {}; ix.forEach(r => g[r.g] = (g[r.g] || 0) + 1); const gs = Object.entries(g).sort((x, y) => y[1] - x[1]).slice(0, 3), mx = Math.max(1, ...gs.map(x => x[1]));
+        const latest = ix.filter(r => r.c).sort((x, y) => (y.c > x.c ? 1 : y.c < x.c ? -1 : 0)).slice(0, 4);
+        return `<div class="sub">By grade</div>${gs.map(([k, v]) => `<button class="bar" data-a="ask|${encodeURIComponent('Show me ' + k + ' applicants by stage')}"><span>${esc(k)}</span><i style="width:${Math.round(100 * v / mx)}%"></i><b>${v}</b></button>`).join('')}
+          <div class="sub">Newest profiles</div>${latest.map(r => `<button class="row2" data-a="app|${encodeURIComponent(r.id || r.n)}"><div style="min-width:0"><span${dirAttr(r.n)}>${esc(r.n)}</span><small>${esc(r.g)} · ${esc(firstName(r.o || ''))}</small></div><b>${esc(String(r.c).slice(5).replace('-', '/'))}</b></button>`).join('')}`; })()}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="act" data-a="pull|pipeline">Pipeline</button><button class="act" data-a="job|season_compare">Pace vs past seasons</button><button class="act" data-a="view|bygov">This week by governorate</button></div>
+      <div class="muted2" style="margin-top:6px;font-size:10.5px">${esc(a.cycle || '')} · day ${a.day_of_cycle ?? '–'} · export ${esc(a.asof || '')}</div>`;
+  },
+  fu() {
+    const a = apps(); if (!a.followups) return `<div class="muted2">Loading…</div>`;
+    const me = meName(), list = fuList({ name: me }, ''); if (!list.length) return `<div class="muted2">Nothing on your list right now.</div>`;
+    const st = list.filter(f => f.stalled).length, fam = list.filter(f => f.who === 'family').length, d = since('fu');
+    const groups = FU_ORDER.map(k => [k, list.filter(f => f.r === k)]).filter(g => g[1].length), max = Math.max(1, ...groups.map(g => g[1].length));
+    return `<div class="big" style="grid-template-columns:repeat(3,1fr)"><div><b>${list.length}</b><span>On your list</span>${d ? `<em>${sgn(d)}</em>` : ''}</div><div><b>${fam}</b><span>Family to act</span></div><div><b style="${st ? 'color:#ff9fb2' : ''}">${st}</b><span>Stalled 2+ wks</span></div></div>
+      ${groups.map(([k, arr]) => `<button class="bar" data-a="fu|${k}"><span>${esc(arr[0].rl)}</span><i style="width:${Math.round(100 * arr.length / max)}%"></i><b>${arr.length}</b></button>`).join('')}
+      <div class="sub">Waiting longest</div>${list.slice().sort((x, y) => (y.days || 0) - (x.days || 0)).slice(0, 3).map(f => `<button class="row2" data-a="app|${encodeURIComponent(f.id)}"><div style="min-width:0"><span${dirAttr(f.n)}>${esc(f.n)}</span><small>${esc(f.rl)}</small></div><b style="${f.stalled ? 'color:#ff9fb2' : ''}">${f.days ?? '–'}d</b></button>`).join('')}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="act" data-a="fu|">Open my list</button>${st ? `<button class="act" data-a="fu|stalled">Stalled</button>` : ''}<button class="act" data-a="ask|Rank my follow-ups by governorate">By governorate</button></div>`;
+  },
+  cal() {
+    const now = Date.now(), today = cairoISO(new Date());
+    let day = today, evs = events().filter(e => !e.all && cairoISO(new Date(e.s)) === today);
+    if (!evs.filter(e => e.e > now).length) { const tm = cairoISO(new Date(now + 864e5)), t2 = events().filter(e => !e.all && cairoISO(new Date(e.s)) === tm); if (t2.length) { day = tm; evs = t2; } }
+    const h = e => { const p = cairoHM(new Date(e)).split(':'); return +p[0] + p[1] / 60; };
+    let a = 8, b = 19; evs.forEach(e => { a = Math.min(a, Math.floor(h(e.s))); b = Math.max(b, Math.ceil(h(e.e))); });
+    const pc = x => Math.max(0, Math.min(100, (x - a) / (b - a) * 100));
+    const next = evs.find(e => e.e > now);
+    const ticks = []; for (let t = a; t <= b; t += (b - a > 12 ? 3 : 2)) ticks.push(`<span class="tk${t === a ? ' f' : t + (b - a > 12 ? 3 : 2) > b ? ' l' : ''}" style="left:${pc(t)}%">${t}:00</span>`);
+    const nowX = day === today ? h(now) : -1;
+    return `<div class="ruler">${evs.map(e => `<div class="ev${e.e < now ? ' past' : ''}${e === next ? ' next' : ''}" style="left:${pc(h(e.s))}%;width:${Math.max(1.5, pc(h(e.e)) - pc(h(e.s)))}%" title="${esc(e.t)}" data-a="prep|${encodeURIComponent(e.t)}"><b>${esc(e.t)}</b><small>${cairoHM(new Date(e.s))}</small></div>`).join('')}${ticks.join('')}${nowX >= a && nowX <= b ? `<div class="now" style="left:${pc(nowX)}%"></div>` : ''}</div>
+      ${next ? `<div class="nextm"><span class="chip2">${day === today ? 'Next' : 'Tomorrow'} · ${cairoHM(new Date(next.s))}</span><span class="t">${esc(next.t)}</span><button class="act" data-a="prep|${encodeURIComponent(next.t)}">Prep me</button></div>`
+        : `<div class="nextm"><span class="muted2">${evs.length ? 'Nothing else today.' : 'Nothing booked today or tomorrow.'}</span><button class="act" data-a="pull|agenda-week" style="margin-left:auto">Next 7 days</button></div>`}`;
+  },
+  inbox() {
+    const th = sec('inbox').threads || [], dr = S.drafts.filter(x => cairoISO(new Date(x.at)) === cairoISO(new Date())).length;
+    return `<div class="big" style="grid-template-columns:repeat(3,1fr)"><div><b>${th.length}</b><span>Need you</span></div><div><b>${th.filter(t => t.unread).length}</b><span>Unread</span></div><div><b>${dr}</b><span>Drafts today</span></div></div>
+      ${th.slice(0, 7).map(t => `<button class="row2" data-a="ask|${encodeURIComponent('Help me reply to the email from ' + t.from + ' about ' + t.subject)}"><div style="min-width:0"><span${dirAttr(t.from)}>${esc(t.from)}</span><small${dirAttr(t.subject)}>${esc(t.subject)}</small></div><b>${esc(t.date)}</b></button>`).join('') || '<div class="muted2">Nothing waiting. Nice.</div>'}
+      ${S.drafts.length ? `<div class="sub">Your latest drafts</div>${S.drafts.slice(0, 3).map(d => `<div class="row2" style="cursor:default"><div style="min-width:0"><span>${esc(d.subject)}</span><small>to ${esc(d.to)}</small></div><b>${esc(cairoHM(new Date(d.at)))}</b></div>`).join('')}` : ''}
+      <div class="muted2" style="margin-top:6px;font-size:10.5px">Tap one and Jarvis drafts the reply. Drafts only, never sent.</div>`;
+  },
+  today() {
+    const t = tasksOpen(), ready = jobs().filter(j => j.status === 'done' && !S.seen[j.id]), run = jobs().filter(j => j.status === 'queued' || j.status === 'running');
+    const top = t.slice().sort((x, y) => (y.pri ? 2 : 0) + (y.over ? 1 : 0) - ((x.pri ? 2 : 0) + (x.over ? 1 : 0))).slice(0, 7);
+    return `${ready.length ? ready.slice(0, 2).map(j => `<button class="row2" data-a="job|open|${esc(j.id)}"><div style="min-width:0"><span>${esc(j.card?.title || j.title)}</span><small>Ready for you</small></div><span class="chip2 hot">new</span></button>`).join('') : ''}
+      ${run.length ? `<div class="sub">Working on</div>${run.slice(0, 2).map(j => `<div class="row2" style="cursor:default"><div style="min-width:0"><span>${esc(j.title || j.kind)}</span><small>${esc(j.status)}</small></div><b>…</b></div>`).join('')}` : ''}
+      <div class="sub">Top tasks · ${t.length} open</div>
+      ${top.map(x => `<button class="row2" data-a="pull|tasks"><div style="min-width:0"><span>${esc(x.t)}</span>${x.due ? `<small>${x.over ? 'Overdue · ' : 'Due '}${esc(x.due)}</small>` : ''}</div>${x.pri ? '<span class="chip2 hot">priority</span>' : ''}</button>`).join('') || '<div class="muted2">No open tasks.</div>'}
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px"><button class="act" data-a="ask|What should I focus on next?">What next?</button><button class="act" data-a="ask|Wrap up my day: what got done, what slipped, and what I should start with tomorrow.">Wrap my day</button></div>`;
+  }
+};
+function desksHTML() {
+  return `<div class="desks" id="desks">${DESKS.map(d => `<section class="dk" id="dk-${d.id}" data-desk="${d.id}">${dkHead(d)}<div class="bd2"></div></section>`).join('')}
+    <section class="dk" id="dk-stats"><div class="statrow" id="statrow"></div></section></div>
+    <div class="apx" id="auto"><div class="ap-top"><div class="k">24-HOUR AUTOPILOT</div><div class="clk" id="apclk">--:--</div><div class="s">What Jarvis and your scheduled tasks do on their own</div><button id="applay">Play the day</button></div><div id="aplabels"></div><div class="ap-foot" id="apfoot"></div></div>`;
+}
+function paintDesks() {
+  if (!$('#desks')) return;
+  DESKS.forEach(d => { const el = $('#dk-' + d.id + ' .bd2'); if (el) { try { el.innerHTML = DESK_BODY[d.id](); } catch (e) { el.innerHTML = `<div class="muted2">${esc(e.message)}</div>`; } } });
+  paintStats(); paintBrief();
+}
+function paintStats() {
+  const el = $('#statrow'); if (!el) return;
+  const s = dayStats(), mins = s.done * 3 + s.drafts * 6 + s.views * 4;
+  el.innerHTML = `<div><b>${s.done}</b><span>Done today</span></div><div title="Estimate: 3 min per action, 6 per draft, 4 per view"><b>${mins >= 60 ? (mins / 60).toFixed(1) + 'h' : mins + 'm'}</b><span>Time saved (est.)</span></div><div class="zero"><b>0</b><span>Sent without approval</span></div><div><b>${esc((apps().asof || '–').slice(5).replace('-', '/'))}</b><span>Export date</span></div>`;
+}
+function paintBrief() {
+  const el = $('#brief'); if (!el) return;
+  const now = Date.now(), evs = events().filter(e => !e.all && e.e > now && cairoISO(new Date(e.s)) === cairoISO(new Date()));
+  const di = since('inq'), th = (sec('inbox').threads || []).length, ready = jobs().filter(j => j.status === 'done' && !S.seen[j.id]).length;
+  const bits = [evs.length ? `${evs.length} meeting${evs.length > 1 ? 's' : ''} left today` : 'No more meetings today', di ? `${sgn(di)} inquiries ${sinceLabel()}` : '', th ? `${th} email${th > 1 ? 's' : ''} need you` : '', ready ? `${ready} report${ready > 1 ? 's' : ''} ready` : ''].filter(Boolean);
+  const hr = +cairoHM(new Date()).slice(0, 2);
+  el.innerHTML = `${esc(bits.join(' · '))}<br><button id="briefgo">${hr < 12 ? 'Brief me' : hr < 17 ? 'What needs me now?' : 'Wrap up my day'}</button>`;
+  $('#briefgo').onclick = () => ask(hr < 12 ? 'Give me my morning brief: what changed since I last looked, my day, and what needs me first.' : hr < 17 ? 'What needs me right now? Pick the top three.' : 'Wrap up my day: what got done, what slipped, and what I should start with tomorrow.');
+}
+function bindDesks() {
+  $('#desks').addEventListener('click', e => {
+    const b = e.target.closest('[data-a]'); if (!b) return; e.stopPropagation();
+    const [k, v, w] = b.dataset.a.split('|');
+    if (k === 'pull') { if (v === 'agenda-week') pull('agenda', { day: 'week' }, 'tap'); else pull(v, {}, 'tap'); }
+    else if (k === 'fu') pull('followups', { who: meName(), reason: v || '' }, 'tap');
+    else if (k === 'prep') ask('Prep me for ' + decodeURIComponent(v) + ': who it is with, what to cover and what I need to decide.');
+    else if (k === 'ask') ask(decodeURIComponent(v));
+    else if (k === 'app') pull('applicant', { id: decodeURIComponent(v) }, 'tap');
+    else if (k === 'job') { if (v === 'open') { pull('job', { id: w }, 'tap'); S.seen[w] = 1; LS.set('seenJobs', S.seen); } else runJob(v, ''); }
+    else if (k === 'view' && v === 'bygov') runView({ title: 'New applicants, last 7 days, by governorate', scope: 'new', filters: 'Date created | last_days | 7', group_by: 'governorate', counselor: '', followups_only: '', sort_by: '', order: '', show: '' }, 'tap');
+  });
+  $('#desks').addEventListener('click', e => { if (e.target.closest('[data-a],button,a')) return; const d = e.target.closest('[data-desk]'); if (!d) return;
+    const m = { adm: ['pipeline', {}], fu: ['followups', { who: meName(), reason: '' }], cal: ['agenda', { day: 'today' }], inbox: ['inbox', {}], today: ['tasks', {}] }[d.dataset.desk]; if (m) pull(m[0], m[1], 'tap'); });
+  $('#applay').onclick = playDay;
+}
+setInterval(() => { if (ST.open && $('#desks') && !document.hidden) paintDesks(); }, 60000);
+
+/* ----- autopilot dial ----- */
+const AP = { t: null, play: 0 };
+function apItems() {
+  const dow = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short' }).format(new Date()));
+  const out = [];
+  (S.pack?.autopilot || []).forEach(x => {
+    if (x.days && x.days.indexOf(dow) < 0) return;
+    const [hh, mm] = String(x.t).split(':').map(Number);
+    out.push({ m: hh * 60 + (mm || 0), label: x.label, tag: x.tag || x.t, c: x.color || '#a9a6ff', every: x.every });
+  });
+  events().filter(e => !e.all && cairoISO(new Date(e.s)) === cairoISO(new Date())).forEach(e => { const p = cairoHM(new Date(e.s)).split(':'); out.push({ m: +p[0] * 60 + +p[1], label: e.t, tag: 'MEETING ' + cairoHM(new Date(e.s)), c: '#ff9fb2', ev: 1 }); });
+  return out.sort((a, b) => a.m - b.m);
+}
+function paintAuto() {
+  const host = $('#aplabels'); if (!host) return;
+  const items = apItems();
+  host.innerHTML = items.map((x, i) => `<div class="ap-l${x.ev ? ' ev' : ''}" data-m="${x.m}" style="--c:${x.c}"><small>${esc(x.tag)}${x.every ? ' · ' + esc(x.every) : ''}</small>${esc(x.label.length > (phone() ? 24 : 36) ? x.label.slice(0, phone() ? 23 : 35) + '…' : x.label)}</div>`).join('');
+  const off = (S.pack?.autopilot || []).filter(x => x.days && apItems().every(y => y.label !== x.label)).map(x => x.label);
+  $('#apfoot').innerHTML = `Always on: your data kept warm every 5 minutes${S.settings.wake ? ', wake word listening' : ''}. ${off.length ? 'Not today: ' + esc(off.join('; ')) + '.' : ''} Jarvis itself never sends anything; family replies go out only after the team approves them in the Pulse.`;
+}
+function toggleAuto(on) {
+  const s = $('#stg'); if (!s) return;
+  ST.auto = on === undefined ? !ST.auto : on;
+  if (ST.auto && ST.cards.length) clearCards();
+  s.classList.toggle('auto', ST.auto); $('#sauto')?.classList.toggle('on', ST.auto);
+  if (ST.auto) paintAuto(); else AP.play = 0;
+  layoutBusy();
+}
+function playDay() {
+  if (AP.play) { AP.play = 0; $('#applay').textContent = 'Play the day'; return; }
+  AP.play = performance.now(); $('#applay').textContent = 'Stop';
+}
+function apMinute() {
+  if (AP.play) { const p = (performance.now() - AP.play) / 14000; if (p >= 1) { AP.play = 0; const b = $('#applay'); if (b) b.textContent = 'Play the day'; } else return p * 1440; }
+  const [h, m] = cairoHM(new Date()).split(':').map(Number); return h * 60 + m;
+}
+
+/* ----- the thread orb (canvas) ----- */
+const SKY = { lobes: null, spread: 0, vol: 0, last: 0, w: 0, h: 0, frame: 0 };
+function mkLobe(seed, n) {
+  let s = seed * 9301 + 49297; const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  const curves = [];
+  for (let c = 0; c < n; c++) {
+    const a = rnd() * Math.PI * 2, b = Math.acos(2 * rnd() - 1), g = rnd() * Math.PI * 2;
+    const ca = Math.cos(a), sa = Math.sin(a), cb = Math.cos(b), sb = Math.sin(b), cg = Math.cos(g), sg = Math.sin(g);
+    const m = [ca * cb * cg - sa * sg, -ca * cb * sg - sa * cg, ca * sb, sa * cb * cg + ca * sg, -sa * cb * sg + ca * cg, sa * sb, -sb * cg, sb * sg, cb];
+    const r = 0.72 + rnd() * 0.3, wob = 0.05 + rnd() * 0.12, k = 2 + Math.floor(rnd() * 3), ph = rnd() * 6.28, N = 36, pts = new Float32Array(N * 3);
+    for (let i = 0; i < N; i++) {
+      const t = i / N * Math.PI * 2, x = Math.cos(t) * r, y = Math.sin(t) * r * (1 + wob * Math.sin(k * t + ph)), z = wob * Math.cos(k * t + ph) * r;
+      pts[i * 3] = m[0] * x + m[1] * y + m[2] * z; pts[i * 3 + 1] = m[3] * x + m[4] * y + m[5] * z; pts[i * 3 + 2] = m[6] * x + m[7] * y + m[8] * z;
+    }
+    curves.push(pts);
+  }
+  return curves;
+}
+function skyStart() {
+  if (!SKY.lobes) SKY.lobes = DESKS.map((d, i) => mkLobe(i + 3, phone() ? 18 : 26));
+  if (!SKY.raf) SKY.raf = requestAnimationFrame(skyTick);
+}
+function skyTick(ts) {
+  SKY.raf = 0;
+  const cv = $('#sky'), orb = $('#orb'); if (!cv || !orb || !ST.open) return;
+  SKY.raf = requestAnimationFrame(skyTick);
+  if (document.hidden) return;
+  if (phone() && (SKY.frame++ & 1)) return;
+  const dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+  const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  const cr = cv.getBoundingClientRect(), or = orb.getBoundingClientRect();
+  const cx = or.left - cr.left + or.width / 2, cy = or.top - cr.top + or.height / 2, R0 = or.width * 0.47;
+  const mode = orb.dataset.mode, stg = $('#stg'), cmd = stg.classList.contains('cmd'), auto = stg.classList.contains('auto');
+  const target = (cmd || auto) && !S.conv && mode !== 'connecting' ? 1 : 0;
+  SKY.spread += (target - SKY.spread) * 0.035;
+  let v = 0; try { if (S.conv) v = mode === 'speaking' ? S.conv.getOutputVolume() * 1.8 : S.conv.getInputVolume() * 2.2; } catch (e) {}
+  SKY.vol += (Math.min(1, v) - SKY.vol) * 0.25;
+  const t = ts / 1000, sp = SKY.spread, ease = sp * sp * (3 - 2 * sp), spin = mode === 'connecting' ? 1.6 : S.conv ? 0.55 : 0.18;
+  ctx.globalCompositeOperation = 'lighter';
+  // autopilot ring
+  if (auto) drawDial(ctx, cx, cy, R0 * (phone() ? 1.62 : 1.78), t);
+  const rects = cmd && !phone() ? DESKS.map(d => { const el = $('#dk-' + d.id); return el ? el.getBoundingClientRect() : null; }) : null;
+  DESKS.forEach((d, i) => {
+    let dx, dy;
+    if (rects && rects[i]) { const r = rects[i]; dx = r.left - cr.left + r.width / 2 - cx; dy = r.top - cr.top + r.height / 2 - cy; const L = Math.hypot(dx, dy) || 1; dx /= L; dy /= L; }
+    else { const ang = -Math.PI / 2 + i * Math.PI * 2 / 5 + t * 0.05; dx = Math.cos(ang); dy = Math.sin(ang); }
+    const rr = R0 * (1 - 0.48 * ease) * (1 + SKY.vol * 0.22) * (1 + 0.025 * Math.sin(t * 1.3 + i)), px = cx + dx * ease * R0 * 0.66, py = cy + dy * ease * R0 * 0.66;
+    const [r, g, b] = d.rgb, glow = ctx.createRadialGradient(px, py, 0, px, py, rr * 1.25);
+    glow.addColorStop(0, `rgba(${r},${g},${b},${0.13 + SKY.vol * 0.12})`); glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+    ctx.fillStyle = glow; ctx.beginPath(); ctx.arc(px, py, rr * 1.25, 0, 6.283); ctx.fill();
+    const yaw = t * spin * (i % 2 ? -1 : 1) + i, pitch = 0.35 * Math.sin(t * 0.21 + i), cyw = Math.cos(yaw), syw = Math.sin(yaw), cp = Math.cos(pitch), spc = Math.sin(pitch);
+    ctx.strokeStyle = `rgba(${r},${g},${b},${0.2 + SKY.vol * 0.18 - ease * 0.03})`; ctx.lineWidth = 0.9;
+    SKY.lobes[i].forEach(pts => {
+      ctx.beginPath();
+      for (let k = 0, N = pts.length / 3; k <= N; k++) {
+        const j = (k % N) * 3, x = pts[j], y = pts[j + 1], z = pts[j + 2];
+        const x1 = x * cyw + z * syw, z1 = -x * syw + z * cyw, y1 = y * cp - z1 * spc;
+        const X = px + x1 * rr, Y = py + y1 * rr; k ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+      }
+      ctx.stroke();
+    });
+    if (ease > 0.55 && !auto) {
+      const a = (ease - 0.55) / 0.45, lx = px + dx * rr * 0.95, ly = py + dy * rr * 0.95;
+      if (rects && rects[i]) { // connector to its desk, with a packet travelling along it
+        const R = rects[i], tx = Math.max(R.left - cr.left, Math.min(R.right - cr.left, lx + dx * 400)), ty = Math.max(R.top - cr.top, Math.min(R.bottom - cr.top, ly + dy * 400));
+        const ex = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? R.left - cr.left : R.right - cr.left) : tx, ey = Math.abs(dx) > Math.abs(dy) ? ty : (dy > 0 ? R.top - cr.top : R.bottom - cr.top);
+        const lg = ctx.createLinearGradient(lx, ly, ex, ey); lg.addColorStop(0, `rgba(${r},${g},${b},${0.55 * a})`); lg.addColorStop(1, `rgba(${r},${g},${b},${0.1 * a})`);
+        ctx.strokeStyle = lg; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(ex, ey); ctx.stroke();
+        const q = (t * 0.45 + i * 0.21) % 1; ctx.fillStyle = `rgba(${r},${g},${b},${0.9 * a})`; ctx.beginPath(); ctx.arc(lx + (ex - lx) * q, ly + (ey - ly) * q, 2.2, 0, 6.283); ctx.fill();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      const label = d.code + '  ' + d.name.toUpperCase(); ctx.font = '600 9.5px ' + getComputedStyle(document.body).getPropertyValue('--f-mono');
+      const tw = ctx.measureText(label).width + 12, bx = px - tw / 2, by = py - rr * 0.15 - 9;
+      ctx.fillStyle = `rgba(13,12,34,${0.82 * a})`; ctx.strokeStyle = `rgba(${r},${g},${b},${0.8 * a})`; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.roundRect ? ctx.roundRect(bx, by, tw, 18, 5) : ctx.rect(bx, by, tw, 18); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = `rgba(255,255,255,${a})`; ctx.textBaseline = 'middle'; ctx.fillText(label, bx + 6, by + 9.5);
+      ctx.globalCompositeOperation = 'lighter';
+    }
+  });
+  ctx.globalCompositeOperation = 'source-over';
+}
+function drawDial(ctx, cx, cy, R, t) {
+  const min = apMinute(), ang = m => -Math.PI / 2 + m / 1440 * Math.PI * 2;
+  ctx.strokeStyle = 'rgba(143,227,255,.55)'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.283); ctx.stroke();
+  ctx.strokeStyle = 'rgba(143,227,255,.12)'; ctx.lineWidth = 10; ctx.beginPath(); ctx.arc(cx, cy, R, ang(0), ang(min)); ctx.stroke();
+  for (let h = 0; h < 24; h++) { const a = ang(h * 60), r1 = R - (h % 6 ? 4 : 9); ctx.strokeStyle = `rgba(255,255,255,${h % 6 ? .25 : .55})`; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(cx + Math.cos(a) * r1, cy + Math.sin(a) * r1); ctx.lineTo(cx + Math.cos(a) * (R + 3), cy + Math.sin(a) * (R + 3)); ctx.stroke(); }
+  ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.font = '500 9px ' + getComputedStyle(document.body).getPropertyValue('--f-mono'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  [[0, '12 AM'], [360, '6 AM'], [720, '12 PM'], [1080, '6 PM']].forEach(([m, l]) => { const a = ang(m); ctx.fillText(l, cx + Math.cos(a) * (R - 20), cy + Math.sin(a) * (R - 20)); });
+  ctx.textAlign = 'start';
+  const items = apItems(), ap = $('#aplabels'), cr = $('#sky').getBoundingClientRect(), els = ap ? ap.children : [];
+  const placed = [], W = $('#sky').clientWidth;
+  items.forEach((x, i) => {
+    const a = ang(x.m), px = cx + Math.cos(a) * R, py = cy + Math.sin(a) * R, lit = Math.abs(min - x.m) < 25;
+    ctx.fillStyle = x.c; ctx.beginPath(); ctx.arc(px, py, lit ? 5 : 3.2, 0, 6.283); ctx.fill();
+    if (lit) { ctx.strokeStyle = x.c; ctx.globalAlpha = .5; ctx.beginPath(); ctx.arc(px, py, 9 + 3 * Math.sin(t * 6), 0, 6.283); ctx.stroke(); ctx.globalAlpha = 1; }
+    const el = els[i]; if (el) {
+      let lr = R + (phone() ? 40 : 62), lx, ly;
+      for (let k = 0; k < 6; k++) { lx = cx + Math.cos(a) * lr; ly = cy + Math.sin(a) * lr; if (!placed.some(p => Math.abs(p[0] - lx) < (phone() ? 120 : 190) && Math.abs(p[1] - ly) < 30)) break; lr += phone() ? 26 : 34; }
+      const hw = (el.offsetWidth || 120) / 2; lx = Math.max(hw + 6, Math.min(W - hw - 6, lx)); placed.push([lx, ly]);
+      el.style.left = lx + 'px'; el.style.top = ly + 'px'; el.classList.toggle('lit', lit); el.classList.toggle('done', !lit && x.m < min);
+      ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(cx + Math.cos(a) * (lr - 14), cy + Math.sin(a) * (lr - 14)); ctx.stroke();
+    }
+  });
+  const a = ang(min), hx = cx + Math.cos(a) * R, hy = cy + Math.sin(a) * R;
+  ctx.fillStyle = '#ffd59a'; ctx.shadowColor = '#ffd59a'; ctx.shadowBlur = 14; ctx.beginPath(); ctx.arc(hx, hy, 5, 0, 6.283); ctx.fill(); ctx.shadowBlur = 0;
+  const c = $('#apclk'); if (c) { const h = Math.floor(min / 60) % 24, m = Math.floor(min % 60); c.textContent = `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`; }
+}
+
 /* ----- opening and closing the stage ----- */
 function openStage() {
   const h = $('#stageHost');
   if (S.view === 'talk') S.view = 'today';
   if (!ST.open) { ST.open = true; h.classList.add('on'); document.body.classList.add('staged'); }
   if (!$('#orb')) { h.innerHTML = stageHTML(); bindStage(); ST.mode = phone() ? 'p' : 'd'; ST.cards.forEach(c => { c.x = null; mountCard(c); }); }
-  layoutBusy(); paintTalk(); paintCaption(); paintSugg(); paintActions();
+  layoutBusy(); paintTalk(); paintCaption(); paintSugg(); paintActions(); paintDesks(); skyStart();
 }
 function closeStage() {
   ST.open = false; const h = $('#stageHost'); h.classList.remove('on'); h.innerHTML = ''; document.body.classList.remove('staged');
@@ -1329,14 +1726,15 @@ function closeStage() {
 }
 function stageHTML() {
   const name = S.pack?.assistant || 'Jarvis';
-  return `<div class="stg" id="stg"><div class="cols-bg">${[38, 62, 90, 54, 74, 44, 82, 58, 66].map(h => `<i style="height:${h}%"></i>`).join('')}</div>
+  return `<div class="stg" id="stg"><div class="cols-bg">${[38, 62, 90, 54, 74, 44, 82, 58, 66].map(h => `<i style="height:${h}%"></i>`).join('')}</div><canvas id="sky" aria-hidden="true"></canvas>
     <div class="stg-top"><div class="brand"><div class="cols"><i></i><i></i><i></i><i></i></div><span>${esc(name)}</span><span class="dot" id="stgdot"></span></div>
-      <div style="display:flex;gap:8px"><button class="ghost" id="shist" title="What we did">${svg('talk')}<span>History</span></button><button class="ghost" id="sclr" title="Clear the screen">${svg('x')}<span>Clear</span></button><button class="ghost" id="sx" title="Open the app">${svg('today')}<span>App</span></button></div></div>
-    <div class="board" id="board"></div>
+      <div style="display:flex;gap:8px"><button class="ghost" id="sauto" title="What runs on its own">${svg('calendar')}<span>Autopilot</span></button><button class="ghost" id="shist" title="What we did">${svg('talk')}<span>History</span></button><button class="ghost" id="sclr" title="Clear the screen">${svg('x')}<span>Clear</span></button><button class="ghost" id="sx" title="Open the app">${svg('today')}<span>App</span></button></div></div>
+    ${desksHTML()}<div class="board" id="board"></div>
     <div class="dock" id="dock">
       <button class="orb" id="orb" data-mode="idle" aria-label="Start or stop talking"><span class="ring r2"></span><span class="ring"></span><span class="core"></span><span class="bars"><i></i><i></i><i></i><i></i></span></button>
       <div class="state" id="state"></div>
       <div class="cap" id="cap"></div>
+      <div class="brief" id="brief"></div>
       <div class="sugg" id="sugg"></div>
       <div class="ticker" id="tick"></div>
       <div class="typebar"><input class="field" id="typein" placeholder="Or type to Jarvis" autocomplete="off"><button class="ghost" id="typego">Send</button></div>
@@ -1346,15 +1744,16 @@ function bindStage() {
   $('#orb').onclick = () => { S.micRetry = 0; S.conv ? stopTalk() : startTalk(''); };
   const send = () => { const v = $('#typein').value.trim(); if (!v) return; $('#typein').value = ''; if (S.conv) { S.conv.sendUserMessage(v); addMsg('user', v); S.session.userEnd = performance.now(); } else startTalk(v); };
   $('#typego').onclick = send; $('#typein').onkeydown = e => { if (e.key === 'Enter') send(); };
-  $('#sx').onclick = closeStage; $('#sclr').onclick = clearCards; $('#shist').onclick = () => pull('activity', {}, 'tap');
+  $('#sx').onclick = closeStage; $('#sclr').onclick = () => { toggleAuto(false); clearCards(); }; $('#sauto').onclick = () => toggleAuto(); bindDesks(); $('#shist').onclick = () => pull('activity', {}, 'tap');
   $('#board').addEventListener('click', e => { const b = e.target.closest('[data-pull]'); if (!b) return; const i = b.dataset.pull.indexOf('|'); pull(b.dataset.pull.slice(0, i), JSON.parse(decodeURIComponent(b.dataset.pull.slice(i + 1))), 'tap'); });
 }
-function layoutBusy() { const s = $('#stg'); if (s) { s.classList.toggle('busy', ST.cards.length > 0); s.classList.toggle('many', ST.cards.length >= 3); } }
+function layoutBusy() { const s = $('#stg'); if (s) { s.classList.toggle('busy', ST.cards.length > 0); s.classList.toggle('many', ST.cards.length >= 3); s.classList.toggle('cmd', !ST.cards.length && !ST.auto); } }
 
 /* ----- cards ----- */
 function pull(type, args = {}, from) {
   const def = CARD[type]; if (!def) return null;
   if (!ST.open) openStage();
+  if (ST.auto) toggleAuto(false);
   const key = type + ':' + JSON.stringify(args);
   let c = ST.cards.find(x => x.key === key);
   if (c) { c.z = ++ST.z; const el = $('#' + c.id); if (el) { el.style.zIndex = c.z; el.querySelector('.bd').innerHTML = cardBody(def, args); def.bind?.(el, args); el.classList.remove('hi'); void el.offsetWidth; el.classList.add('hi'); } }
