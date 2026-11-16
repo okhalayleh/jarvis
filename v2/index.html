@@ -685,7 +685,7 @@ function dynVars() {
   const pipe = a.funnel ? `As of the ${a.asof} export, day ${a.day_of_cycle} of the ${a.cycle} cycle: ${F.inquiries} inquiries, ${F.submitted} submitted, ${F.awaiting_phase1_review} awaiting Phase I review, ${F.cleared_for_cat4} cleared for CAT4, ${F.cat4_taken} have taken CAT4, ${fc.submit_ready || 0} ready to submit, ${fc.partial || 0} part-way through the form. Use admissions_numbers for more, and followups for one counselor's list (Omar's own included).` : 'Not loaded.';
   const ready = jobs().filter(j => j.status === 'done' && !S.seen[j.id]).slice(0, 3).map(j => j.title).join('; ');
   return {
-    greeting: (hr < 12 ? 'Morning' : hr < 17 ? 'Afternoon' : 'Evening') + ', ' + owner + '.',
+    greeting: (hr < 12 ? 'Morning' : hr < 17 ? 'Afternoon' : 'Evening') + ', sir.',
     now_text: `${cairoDay(now, true)} ${fmtParts(now, { year: 'numeric' }).year}, ${cairoHM(now)}`,
     date_table: dates.join('; '),
     agenda: evs.join('; ') || 'Nothing booked.',
