@@ -499,7 +499,7 @@ body.staged{overflow:hidden}
 /* =====================================================================
    JARVIS CORE  (no school names, data or brand in here: those come from the pack)
    ===================================================================== */
-const VERSION = '2.4.0';
+const VERSION = '2.5.0';
 const SDK_URL = 'https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.36.1/+esm';
 const PACK_ID = new URLSearchParams(location.search).get('pack') || 'manara';
 const TZ = 'Africa/Cairo';
@@ -817,6 +817,8 @@ const TOOLS = {
     if (what === 'stalled') return TOOLS.followups({ counselor: d || 'all', reason: 'stalled' });
     if (what === 'applicant') return d ? TOOLS.find_applicant({ name: d }) : 'Which student?';
     if (what === 'answers') return d ? TOOLS.application_answers({ name: d }) : 'Which student?';
+    if (what === 'email') return d ? TOOLS.open_email(/^[0-9a-f]{12,20}$/i.test(d) ? { thread_id: d } : { query: d }) : 'Which email?';
+    if (what === 'web') return d ? TOOLS.web_search({ query: d }) : 'What should I look up?';
     const map = { counselors: ['counselors', {}], pipeline: ['pipeline', {}], tasks: ['tasks', {}], inbox: ['inbox', {}], history: ['activity', {}],
       agenda: ['agenda', { day: /tomorrow/i.test(d) ? 'tomorrow' : /week|7|seven/i.test(d) ? 'week' : 'today' }] };
     const m = map[what]; if (!m) return 'I cannot pull that up yet.';
@@ -860,6 +862,33 @@ const TOOLS = {
     perf('tool email search', performance.now() - t0);
     if (!j.ok) return j.message || 'Nothing found.';
     return J({ emails: (j.threads || []).map(t => ({ from: t.from, subject: t.subject, when: t.date, preview: t.preview, thread_id: t.thread_id })) });
+  },
+  /* 2.5.0: open one email on screen (any folder/label, archived too) */
+  async open_email({ thread_id, query }) {
+    let tid = String(thread_id || '').trim();
+    if (!tid && query) {
+      const f = await api('find_email', { query }, { timeout: 24000 }).catch(e => ({ ok: false, message: e.message }));
+      const th = (f && f.threads) || []; if (!th.length) return (f && f.message) || `I could not find an email matching ${query}.`;
+      tid = th[0].thread_id;
+    }
+    if (!tid) return 'Which email? Give me the sender or the subject.';
+    const t0 = performance.now(), d = await loadMail(tid); perf('tool open_email', performance.now() - t0);
+    const shown = pull('email', { tid });
+    if (!d || d.err) return J({ on_screen: true, note: (d && d.err) || 'I could not open that email.' });
+    const last = d.messages[d.messages.length - 1] || {};
+    return J({ on_screen: true, subject: d.subject, folders: d.labels, messages: d.messages.length, from: last.from, when: last.date,
+      text: String(last.body || '').slice(0, 2500), offer: shown?.offer || '',
+      rule: 'The email is on Omar\'s screen. Say in one or two sentences who it is from and what it is about, unless he asks for more. Never read out email addresses.' });
+  },
+  /* 2.5.0: quick web research, answer and sources on screen */
+  async web_search({ query }) {
+    const q = String(query || '').trim(); if (!q) return 'What should I look up?';
+    const t0 = performance.now(), d = await loadWeb(q); perf('tool web_search', performance.now() - t0);
+    if (d && d.queued) return J({ queued: true, note: d.message, rule: 'Tell Omar in one sentence that Claude is looking it up and it will appear as a card.' });
+    pull('web', { q });
+    if (!d || d.err) return J({ on_screen: true, note: (d && d.err) || 'The web search failed.' });
+    return J({ on_screen: true, answer: d.answer || '', sources: (d.results || []).slice(0, 5).map(r => ({ title: r.title, site: r.site, snippet: String(r.content || '').slice(0, 400) })),
+      rule: 'Answer in one or two sentences from these results and say it comes from the web. If they do not answer the question, say so. The sources are on Omar\'s screen.' });
   },
   async save_draft(p) {
     const body = String(p.body || '').trim(); if (!body) return 'I need the email text.';
@@ -1360,6 +1389,34 @@ const CARD = {
     body() { const th = sec('inbox').threads || []; return th.length ? th.slice(0, 8).map(t => `<div class="row"><div class="t"><div>${esc(t.from)}</div><small${dirAttr(t.subject)}>${esc(t.subject)}</small></div><span class="chip ${t.unread ? 'info' : 'plain'}">${esc(t.date)}</span></div>`).join('') + '<p class="src">Unread or important, last 3 days. Replies are saved as drafts, never sent.</p>' : emptyBox('Nothing waiting.'); },
     suggest: () => [{ label: 'Top tasks', type: 'tasks', args: {} }, { label: "Today's meetings", type: 'agenda', args: { day: 'today' } }]
   },
+  email: {
+    kicker: 'Email', w: 500,
+    title({ tid }) { const d = S.mail[tid]; return (d && d.subject) || 'Email'; },
+    body({ tid }) {
+      const d = S.mail[tid];
+      if (!d || d.p) { loadMail(tid).then(() => refreshCard('email', { tid })); return '<div class="empty">Opening the email…</div>'; }
+      if (d.err) return emptyBox(d.err);
+      const ms = d.messages.slice(-4);
+      return `${d.labels && d.labels.length ? `<div class="muted" style="font-size:12.5px;margin:0 0 8px">In: ${esc(d.labels.join(', '))}</div>` : ''}
+        ${ms.map(m => `<div class="mail" style="margin-bottom:10px"><div class="mh"><span${dirAttr(m.from)}>${esc(m.from)}</span> <small class="muted">${esc(m.date)}</small></div><div class="mb" style="white-space:pre-wrap;max-height:340px;overflow:auto"${dirAttr(m.body)}>${esc(m.body)}</div>${m.attachments && m.attachments.length ? `<div class="muted" style="font-size:12.5px;margin-top:6px">Attachments: ${esc(m.attachments.join(', '))}</div>` : ''}</div>`).join('')}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><a class="pill sm primary" target="_blank" rel="noopener" href="${esc(d.url)}">Open in Gmail</a></div>
+        <p class="src">${d.count > ms.length ? `Last ${ms.length} of ${d.count} messages. ` : ''}Read from Gmail; nothing is sent.</p>`;
+    },
+    suggest: () => [{ label: 'Needs a reply', type: 'inbox', args: {} }]
+  },
+  web: {
+    kicker: 'Web', w: 460,
+    title: ({ q }) => q,
+    body({ q }) {
+      const d = S.web[q];
+      if (!d || d.p) { loadWeb(q).then(() => refreshCard('web', { q })); return '<div class="empty">Searching the web…</div>'; }
+      if (d.err) return emptyBox(d.err);
+      return `${d.answer ? `<div class="mail"><div class="mb" style="white-space:pre-wrap"${dirAttr(d.answer)}>${esc(d.answer)}</div></div>` : ''}
+        ${(d.results || []).slice(0, 6).map(r => `<a class="row" style="text-decoration:none;color:inherit" target="_blank" rel="noopener" href="${esc(r.url)}"><div class="t"><div${dirAttr(r.title)}>${esc(r.title)}</div><small${dirAttr(r.content)}>${esc(String(r.content || '').slice(0, 180))}</small></div><span class="chip plain">${esc(r.site)}</span></a>`).join('')}
+        <p class="src">Web search, ${esc(d.when || '')}. Check the source before relying on it.</p>`;
+    },
+    suggest: () => []
+  },
   job: {
     kicker: 'Report', w: 420,
     title({ id }) { const j = jobs().find(x => x.id === id); return j ? (j.card?.title || j.title || 'Report') : 'Report'; },
@@ -1427,6 +1484,21 @@ async function loadDet(id) {
   S.det[id] = { p: pr }; return pr;
 }
 const QA_SHORT = 70;
+S.mail = {}; S.web = {};
+async function loadMail(tid) {
+  if (S.mail[tid] && S.mail[tid].messages) return S.mail[tid];
+  if (S.mail[tid] && S.mail[tid].p) return S.mail[tid].p;
+  const pr = api('read_email', { thread_id: tid }, { timeout: 25000 }).then(j => (S.mail[tid] = j && j.ok ? j : { err: (j && j.message) || 'Not found.' }))
+    .catch(e => (S.mail[tid] = { err: e.message }));
+  S.mail[tid] = { p: pr }; return pr;
+}
+async function loadWeb(q) {
+  if (S.web[q] && (S.web[q].results || S.web[q].err)) return S.web[q];
+  if (S.web[q] && S.web[q].p) return S.web[q].p;
+  const pr = api('web_search', { query: q }, { timeout: 30000 }).then(j => (S.web[q] = j && j.ok ? j : { err: (j && j.message) || 'No results.' }))
+    .catch(e => (S.web[q] = { err: e.message }));
+  S.web[q] = { p: pr }; return pr;
+}
 function refreshCard(type, args) { const key = type + ':' + JSON.stringify(args), c = ST.cards.find(x => x.key === key), el = c && document.getElementById(c.id); if (el) { el.querySelector('.bd').innerHTML = cardBody(CARD[type], args); CARD[type].bind?.(el, args); } }
 function appById(id) { const ix = apps().index || []; return ix.find(r => r.id === id) || ix.find(r => r.n === id); }
 function refreshView(vid) { const c = ST.cards.find(x => x.key === 'view:' + JSON.stringify({ vid })), el = c && document.getElementById(c.id); if (el) { el.querySelector('.bd').innerHTML = cardBody(CARD.view, { vid }); CARD.view.bind(el, { vid }); } }
